@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B035 Lab Safety Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <h1>B035 Lab Safety Simulator</h1>
+  <p>A walk-through of the chemical engineering lab, one hazard at a time.</p>
+</header>
+<main>
+  <div id="game" tabindex="0" aria-label="Lab floor plan. Use arrow keys or WASD to move, E to interact, Q to describe your surroundings."></div>
+  <aside>
+    <section class="sign" id="sign">
+      <div class="step" id="stepNo">Step 1 of 8</div>
+      <p class="task" id="task">Loading…</p>
+      <div class="timer" id="timer" aria-hidden="true" hidden></div>
+    </section>
+    <div class="stats">
+      <span class="chip" id="chipPPE">PPE off</span>
+      <span class="chip" id="chipCarry">Hands empty</span>
+      <span class="chip" id="chipScore">Score 100</span>
+    </div>
+    <section class="box">
+      <h2>Nearby</h2>
+      <p id="near">Nothing within reach.</p>
+      <div class="btns" style="margin-top:.6rem">
+        <button id="btnAct" type="button">Interact (E)</button>
+        <button id="btnDesc" type="button">Describe (Q)</button>
+        <button id="btnRestart" type="button">Restart</button>
+      </div>
+    </section>
+    <section class="box">
+      <h2>Event log</h2>
+      <ul id="log" aria-live="polite"></ul>
+      <div id="sr" class="sr" role="status" aria-live="polite"></div>
+    </section>
+    <section class="box">
+      <h2>Settings</h2>
+      <label><input type="checkbox" id="optSpeak" checked> Read events aloud (turn off if you use a screen reader)</label>
+      <label><input type="checkbox" id="optGuide" checked> Highlight the current target</label>
+      <label><input type="checkbox" id="optSound" checked> Alarm and alert sounds</label>
+    </section>
+    <section class="box">
+      <h2>Controls</h2>
+      <ul class="keys">
+        <li><kbd>←↑→↓</kbd> or <kbd>WASD</kbd> walk; hold <kbd>Shift</kbd> to run (don’t)</li>
+        <li><kbd>E</kbd> interact or read an object’s safety note</li>
+        <li><kbd>Q</kbd> describe the three nearest objects</li>
+        <li>Touch: press and hold on the plan to walk toward that spot</li>
+      </ul>
+    </section>
+  </aside>
+</main>
+
+<!-- Game code, in load order. Plain scripts (not modules) so the game also works when index.html is double-clicked. -->
+<script src="js/data.js"></script>       <!-- room layout + drill steps: edit this to change the room or drill -->
+<script src="js/utils.js"></script>      <!-- small helpers -->
+<script src="js/feedback.js"></script>   <!-- event log, screen reader, read aloud, sounds -->
+<script src="js/render.js"></script>     <!-- drawing the map, spill, side panel, end screen -->
+<script src="js/drill.js"></script>      <!-- what each step does, the E key -->
+<script src="js/rules.js"></script>      <!-- safety rules, timers, evacuation -->
+<script src="js/awareness.js"></script>  <!-- nearby objects, Describe (Q) -->
+<script src="js/scene.js"></script>      <!-- the Phaser scene that ties it together -->
+<script src="js/main.js"></script>       <!-- starts the game, connects buttons -->
+</body>
+</html>
