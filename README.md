@@ -2,7 +2,7 @@
 
 A browser-based 2D lab safety drill set in room B035, the chemical engineering lab. Walk through the room, follow the safety steps, and respond to a spill, an eye splash and a fire alarm. It is designed to be playable with a keyboard, a screen reader, or read-aloud speech.
 
-**Play online:** [https://raaaandy.github.io/Lab-safety-simulation/](https://raaaandy.github.io/Lab-safety-simulation/)
+**Play online:** https://YOUR-USERNAME.github.io/b035-lab-safety-sim/ (replace with your GitHub Pages address)
 
 This README has two parts:
 - [Part 1: For players](#part-1-for-players): how to play
@@ -16,7 +16,7 @@ This README has two parts:
 
 Open the link above in Chrome, Edge or Firefox. Nothing needs to be installed.
 
-To play without the website, download `index.html` and double-click it (an internet connection is still needed to load the game engine).
+To play without the website, download the whole folder and double-click `index.html` (an internet connection is still needed to load the game engine).
 
 There are two versions:
 - **Simple view** (`index.html`): the whole floor plan is visible at once, with high-contrast shapes and large labels. Recommended for low-vision players and screen reader users.
@@ -82,173 +82,131 @@ You start with 100 points and lose 10 for each of these (each counts once):
 
 ## Project files
 
-| File | What it is |
-|---|---|
-| `index.html` | Simple view. The whole game is in this one file. |
-| `pixel.html` | Pixel-art view. Same drill and rules, with a different renderer and in-canvas HUD. |
-| `README.md` | This file |
+```
+index.html          page layout (side panel, buttons) and the list of scripts to load
+css/style.css       colours, light/dark mode, side-panel styling
+js/data.js          the room (walls, equipment, exits, spill) and the drill steps
+js/utils.js         small helpers: colours, distances, compass directions
+js/feedback.js      event log, screen reader announcements, read aloud, sounds
+js/render.js        drawing: map, spill, guide ring, side-panel status, end screen
+js/drill.js         what each step does when it starts, and the E key
+js/rules.js         safety rules, timers, evacuation check
+js/awareness.js     nearby objects, the "Nearby" box, Describe (Q)
+js/scene.js         the Phaser scene: setup, movement, and the per-frame loop
+js/main.js          starts the game and connects the buttons
+pixel.html          pixel-art version (single file, same drill and rules)
+README.md           this file
+```
 
-This part describes `index.html`. `pixel.html` follows the same structure and uses the same names.
+The scripts are plain `<script>` tags rather than ES modules, so the game still works when `index.html` is opened by double-clicking. They load in the order listed in `index.html`, and that order matters: data and helpers first, `main.js` last.
+
+## Where to look for what
+
+| I want to… | Edit |
+|---|---|
+| Change the room layout or an object's safety note | `js/data.js` (`WALLS`, `OBJ`, `EXITS`) |
+| Change the wording or order of the drill | `js/data.js` (`STEPS`) |
+| Change what pressing E does at a step | `js/drill.js` → `act()` |
+| Add or change a safety rule | `js/rules.js` → `checkRules()` |
+| Change timers or the 5-second warning | `js/rules.js` → `updateTimer()` |
+| Change what screen readers hear or what is read aloud | `js/feedback.js` |
+| Change the Describe (Q) output or proximity announcements | `js/awareness.js` |
+| Change how the map or side panel looks | `js/render.js`, `css/style.css` |
+| Change movement speed or controls | `js/scene.js` → `movePlayer()`, `create()` |
+
+## How it fits together
+
+`scene.js` defines one Phaser scene, `Lab`. The other files each add a group of methods to it (`RenderMethods`, `DrillMethods`, `RuleMethods`, `AwarenessMethods`), so inside any of them `this` is the scene. The game state lives in `this.s` (current step, score, PPE, what the player is carrying, spill, timer, violations).
+
+Every frame, `update()` in `scene.js` runs:
+
+```
+movePlayer()       scene.js       keyboard / touch movement
+checkRules()       rules.js       running, PPE, ignition, spill
+updateTimer()      rules.js       countdown + 5-second warning
+showTimer()        render.js      countdown on the task card
+checkEvacuation()  rules.js       reached an exit during the fire alarm?
+updateProximity()  awareness.js   "Nearby" box, E bubble, announcements
+drawTargetRing()   render.js      pulsing ring on the current target
+```
+
+```mermaid
+flowchart LR
+    Keys["Keyboard / touch / buttons"] --> Scene["scene.js<br/>update()"]
+    Keys --> Act["drill.js<br/>act() (E key)"]
+    Data["data.js<br/>STEPS, OBJ, WALLS"] --> Scene
+    Data --> Act
+    Scene --> Rules["rules.js<br/>checkRules(), updateTimer()"]
+    Scene --> Aware["awareness.js<br/>updateProximity(), describe()"]
+    Act --> Advance["drill.js<br/>advance() → enterStep()"]
+    Rules --> Violate["rules.js<br/>violate()"]
+    Advance --> Log["feedback.js<br/>log()"]
+    Violate --> Log
+    Aware --> Log
+    Log --> SR["Event log<br/>(screen reader)"]
+    Log --> Speech["Read aloud"]
+    Advance --> HUD["render.js<br/>refreshHUD()"]
+    Violate --> HUD
+```
+
+Two rules keep the game accessible:
+- **Never show information only on the canvas.** If the player needs to know it, send it through `log()` or `announce()` in `feedback.js`.
+- **Keep content in the data.** Add new rooms or steps by editing `data.js`, not by hard-coding them into the logic.
 
 ## Development setup
 
-Serve the folder locally so it behaves like a real website:
+You can open `index.html` directly, but a local server behaves more like the real website:
 
 ```bash
 python -m http.server 8000
 # then open http://localhost:8000/
 ```
 
-To work offline, download [phaser.min.js 3.80.1](https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js) into the same folder, and change line 10 of `index.html` to:
-
-```html
-<script src="phaser.min.js"></script>
-```
+To work offline, download [phaser.min.js 3.80.1](https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js) into the project folder and change the Phaser `<script>` line in `index.html` to `<script src="phaser.min.js"></script>`.
 
 To test accessibility, try the game with a real screen reader (NVDA on Windows, VoiceOver on macOS) with read-aloud turned off.
-
-## Code map
-
-The file has three parts: **CSS** (lines 11–79), **HTML layout** (lines 86–129) and **JavaScript** (lines 131–525). Line numbers are approximate and shift as code is edited, so search for the names below.
-
-### 1. Level data (edit these to change the room or the drill)
-
-| Name | What it holds |
-|---|---|
-| `W`, `H`, `M_PER_PX` | Map size in pixels and the scale (1 px ≈ 1.8 cm) |
-| `WALLS` | Wall rectangles `[x, y, width, height]`. Gaps between them are doors. |
-| `EXITS` | Exit points used by the fire drill |
-| `OBJ` | Every piece of equipment: `id`, `label`, position/size, `kind` (sets its colour) and the safety `note` read when you press E. All objects are solid. |
-| `UTILS`, `TROUGH` | Decoration only (utility boxes, drain trough) |
-| `SPILL` | Where the spill appears and its size |
-| `STEPS` | The drill script: each step has an `id`, instruction `text`, `target` object ids, and optional `urgent` / `timer` |
-
-### 2. Page helpers (accessibility output)
-
-| Function | Responsibility |
-|---|---|
-| `log(msg, cls)` | **The main output.** Adds a line to the event log (announced by screen readers) and reads it aloud. All game feedback should go through this. |
-| `announce(msg)` | Short screen reader-only cues (nearby object, timer warning) |
-| `speakText(msg)` | Queues speech for read-aloud |
-| `beep()` | Sound effects and the fire alarm |
-| `distToRect()`, `compass()` | Geometry helpers for proximity and "Describe" |
-
-### 3. The game scene: `class Lab`
-
-| Method | Responsibility |
-|---|---|
-| `create()` | Sets up state (`this.s`), walls, solid objects, the player, keys and pointer input |
-| `drawMap()` | Draws the floor plan from the level data |
-| `enterStep()` | Runs when a step starts (spawns the spill, starts the alarm or timer) |
-| `advance(msg)` | Completes the current step and moves to the next one |
-| `violate(key, msg)` | Records a rule break and deducts points (once per `key`) |
-| `act()` | **What happens when E is pressed.** One `if` per step that checks whether the player is in the right place. |
-| `describe()` | The Q command |
-| `targetPoint()` | Where the green or red guide ring is drawn |
-| `refreshHUD()` | Updates the task card, score and status chips |
-| `finish()` | End-of-drill summary |
-| `update()` | **Runs every frame.** Movement, rule checks (running, PPE, ignition, spill), timers, the exit check and proximity announcements |
-
-### 4. Startup: `boot()`
-
-Creates the Phaser game and wires up the HTML buttons. It runs once fonts have loaded.
-
----
-
-## How it connects
-
-```mermaid
-flowchart LR
-    Keys["Keyboard / touch / buttons"] --> Update["update()<br/>movement, rule checks, timers"]
-    Keys --> Act["act()<br/>E key"]
-    Data["STEPS, OBJ, WALLS"] --> Create["create() / drawMap()"]
-    Data --> Act
-    Act --> Advance["advance()"]
-    Update --> Violate["violate()"]
-    Update --> Advance
-    Advance --> Enter["enterStep()"]
-    Enter --> Log["log()"]
-    Advance --> Log
-    Violate --> Log
-    Log --> SR["Event log<br/>(screen reader)"]
-    Log --> Speech["Read aloud"]
-    Advance --> HUD["refreshHUD()"]
-    Violate --> HUD
-```
-
-Two rules keep the game accessible:
-- **Never show information only on the canvas.** If the player needs to know it, send it through `log()` or `announce()`.
-- **Keep content in the data.** Add new rooms or steps by editing `OBJ` and `STEPS`, not by hard-coding them into the logic.
-
----
 
 ## Planned features and where they go
 
 ### A. Realistic spill-response procedure
 
-Right now the spill takes two actions: fetch the kit, then press E once at the spill. A real response has more stages, for example:
-1. Alert people nearby.
-2. Identify the chemical (check the SDS binder).
-3. Check your PPE.
-4. Contain the spill from the edges with absorbent socks.
-5. Absorb it.
-6. Bag and label it as hazardous waste.
-7. Report it.
+Right now the spill takes two actions: fetch the kit, then press E once at the spill. A real response has more stages, for example: alert people nearby, identify the chemical (check the SDS binder), check your PPE, contain the spill from the edges with absorbent socks, absorb it, bag and label it as hazardous waste, and report it. The actual procedure must be confirmed with the lab manager.
 
-The actual procedure must be confirmed with the lab manager.
-
-**Where it goes:**
-
-| Change | Location |
+| Change | Where |
 |---|---|
-| New equipment the procedure uses (SDS binder, hazardous waste bin) | Add entries to `OBJ` |
-| Each stage as its own step, with `text` and `target` | Add entries to `STEPS` between `kit` and `eyewash` |
-| What pressing E does at each stage | One new `if (st.id === '...')` per stage in `act()` |
-| New things the player carries (e.g. a filled waste bag) | New fields in `this.s` in `create()`, shown in `refreshHUD()` |
-| Mistakes, e.g. wiping from the centre outward or skipping the SDS | New `violate('key', 'message')` calls in `act()` or `update()` |
-| Stages that take time ("hold E for 3 seconds to absorb") | A counter in `this.s`, increased in `update()` while E is held |
-
-Suggested approach: keep the procedure as data. Define a `SPILL_PROCEDURE` array, insert it into `STEPS`, and keep the wording in one place so the safety officer can review it easily.
+| New equipment (SDS binder, hazardous waste bin) | `OBJ` in `js/data.js` |
+| Each stage as its own step | `STEPS` in `js/data.js`, between `kit` and `eyewash` |
+| What pressing E does at each stage | a new `if (st.id === '...')` in `act()` in `js/drill.js` |
+| Making the E prompt appear for the new stages | `actionTarget()` in `js/drill.js` (usually automatic if the step has a `target`) |
+| New things the player carries (e.g. a filled waste bag) | new fields in `this.s` in `create()` (`js/scene.js`), shown in `refreshHUD()` (`js/render.js`) |
+| Mistakes (wiping from the centre outward, skipping the SDS) | `violate()` calls in `act()` or `checkRules()` |
+| Stages that take time ("hold E for 3 seconds") | a counter in `this.s`, increased in `update()` while E is held |
 
 ### B. Two-player co-op spill cleanup
 
-Some spill tasks need two people. For example, one player keeps others away and watches the spill, while the second fetches the kit; or both must be in position to lay the absorbent boom.
+Some spill tasks need two people: one keeps others away from the spill while the other fetches the kit, and both lay the absorbent together. A first version can run on one keyboard (Player 1: WASD + E, Player 2: arrow keys + Enter).
 
-**Option 1: local co-op (same keyboard), recommended first**
-
-| Change | Location |
+| Change | Where |
 |---|---|
-| Second player object and its collider | `create()`: copy the player setup into `this.player2` |
-| Second set of keys (e.g. P1: WASD + E, P2: arrow keys + Enter) | `create()`: a second `addKeys` call; wire Enter to `act(2)` |
-| Movement for both players | `update()`: move the per-player movement code into a function `movePlayer(player, keys)` and call it twice |
-| Actions know who acted | Change `act()` to `act(playerNumber)`, and `nearObj()` / `nearest()` to take a player |
-| Steps that need both players | Add `coop: true` to those steps in `STEPS`. In `act()` or `update()`, complete them only when both players are near the target (or each is at their assigned spot). |
-| Messages say which player | Prefix messages sent to `log()` with "Player 1:" / "Player 2:" so screen reader users know who is being addressed |
+| Second player and its keys | `create()` and `movePlayer()` in `js/scene.js` (move for each player) |
+| Actions know which player acted | `act(playerNumber)` in `js/drill.js`; `nearObj()` / `nearest()` in `js/awareness.js` take a player |
+| Steps that need both players | add `coop: true` to those steps in `js/data.js`; in `act()`, complete them only when both players are in position |
+| Rules for each player | loop over both players in `checkRules()` (`js/rules.js`) |
+| Messages say which player | prefix `log()` messages with "Player 1:" / "Player 2:" so screen reader users know who is addressed |
 
-**Option 2: online co-op (two computers)** needs a small server that relays player positions between browsers (e.g. WebSockets with Node.js or Python). This is a much bigger change and should come after local co-op works. The game logic should then run on one side (the host or the server) so both players see the same state.
-
-**Accessibility notes for co-op**
-- Two people on one keyboard is hard for some motor disabilities, so keep a single-player mode available.
-- Announce the partner's position on request, e.g. by extending the Q command: "Player 2 is 2 m east."
-- Do not make co-op steps timed by default.
-
----
+Playing on two laptops needs a small server to pass messages between the browsers; do this only after the one-keyboard version works. Keep a single-player mode for players who can't share a keyboard, and don't time co-op steps by default.
 
 ## Adapting to another lab
 
 1. Get the new room's floor plan (PDF or image).
-2. Ask an AI coding assistant to trace it into `WALLS`, `EXITS` and `OBJ` using the same format, with the original image size as the coordinate system.
+2. Ask an AI coding assistant to trace it into `WALLS`, `EXITS` and `OBJ` in `js/data.js`, using the same format and the original image size as the coordinate system.
 3. Update `STEPS` so the targets point to the new object `id`s.
-4. Change `M_PER_PX` to match the real room width.
+4. Change `M_PER_PX` to match the real room width, and `START` in `js/scene.js` to the new entrance.
 5. Walk the room in person to confirm where the safety equipment is. Floor plans usually do not show it.
-
----
 
 ## Publishing updates
 
-The site is hosted on GitHub Pages from the `main` branch. To publish a change, upload or commit a new `index.html`; the site updates automatically within a minute or two. Check the **Actions** tab if it doesn't.
-
----
+The site is hosted on GitHub Pages from the `main` branch. Upload the whole folder (keeping the `css/` and `js/` folders); the site updates automatically within a minute or two. Check the **Actions** tab if it doesn't.
 
 ## Credits
 
