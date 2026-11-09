@@ -2,7 +2,7 @@
 
 A browser-based 2D lab safety drill set in room B035, the chemical engineering lab. Walk through the room, follow the safety steps, and respond to a spill, an eye splash and a fire alarm. It is designed to be playable with a keyboard, a screen reader, or read-aloud speech.
 
-**Play online:** https://raaaandy.github.io/b035-lab-safety-sim/
+**Play online:** [https://raaaandy.github.io/b035-lab-safety-sim/](https://raaaandy.github.io/Lab-safety-simulation/)
 
 This README has two parts:
 - [Part 1: For players](#part-1-for-players): how to play
