@@ -11,7 +11,7 @@ const DrillMethods = {
     if(!st) return '';
     if(this.team() && st.id === 'eyewash'){
       const s = this.s.splashed;
-      return `${pname(s)} got a splash in the eye! ${pname(s)}: reach the eyewash station just right of the centrifugal pump. ${pname(3-s)}: guide them there.`;
+      return `${pname(s)} got a splash in the eye! ${pname(s)}: reach the eye wash and safety shower by the upper wall, just left of the door. ${pname(3-s)}: guide them there.`;
     }
     return (this.team() && st.teamText) || st.text;
   },
