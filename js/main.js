@@ -1,8 +1,9 @@
 // main.js: starts the game and connects the side-panel buttons. Loaded last.
 
-function boot(){
+async function boot(){
   bindSettings();
-  const game = new Phaser.Game({
+  await netJoin();   // net.js: two-player mode if served by server.py; otherwise returns quickly and stays single-player
+  const game = NET.game = new Phaser.Game({
     type: Phaser.AUTO, parent: 'game', width: W, height: H, backgroundColor: css('--paper'),
     physics: {default:'arcade', arcade:{debug:false}},
     scale: {mode:Phaser.Scale.FIT, autoCenter:Phaser.Scale.CENTER_BOTH},
@@ -14,9 +15,19 @@ function boot(){
   $('btnDesc').onclick = () => scene().describe();
   $('btnRestart').onclick = () => {
     if('speechSynthesis' in window) speechSynthesis.cancel();
+    send({t:'restart'});          // two-player: restart the partner's drill too
     scene().scene.restart();
     $('game').focus();
   };
+  // Show / hide the side panel. The map grows to fill the space; the task moves into the "Latest" bar.
+  $('btnPanel').onclick = () => {
+    const hidden = $('main').classList.toggle('panel-hidden');
+    $('btnPanel').setAttribute('aria-expanded', String(!hidden));
+    $('btnPanel').textContent = hidden ? 'Show side panel' : 'Hide side panel';
+    $('latestTask').hidden = !hidden;
+    requestAnimationFrame(() => game.scale.refresh());
+  };
+
   // Redraw the map when the computer switches between light and dark mode
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     const s = scene(); if(s && s.mapG){ s.drawMap(); s.drawSpill(); }

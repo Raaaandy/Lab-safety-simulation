@@ -1,21 +1,31 @@
 """
-Two-laptop co-op server for the B035 Lab Safety Simulator.
+server.py: two-laptop co-op server for the B035 Lab Safety Simulator (see TWO-PLAYER.md).
 
-Run on ONE laptop (the host):
-    python server.py            (or: python3 server.py)
-Then open the address it prints on BOTH laptops. Both must be on the same Wi-Fi.
+Run on ONE laptop (the host), in this folder:
+    python3 server.py           (Windows: python server.py; other port: python3 server.py 8080)
+Then open the addresses it prints: localhost on this laptop, the LAN address on the other one.
+Both laptops must be on the same Wi-Fi.
 
+It serves the game files and passes messages between the two browsers (js/net.js):
+    POST /api/join   gives the first browser role 1 (host), the second role 2 (guest), any more role 0
+    POST /api/leave  sent when a tab closes, frees its role at once
+    POST /api/sync   about 10 times a second: stores this browser's position and (host only) drill
+                     snapshot; returns the partner's position, the host's snapshot and queued messages
+A browser that has not synced for 5 seconds is dropped, freeing its role.
 Uses only the Python standard library: nothing to install.
-Put this file in the same folder as index.html.
 """
 import json, os, socket, sys, threading, time, uuid
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from functools import partial
 from pathlib import Path
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", "8000"))
+# Port: command line, else the PORT environment variable (set by hosts like Render), else 8000
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", 8000))
 ROOT = Path(__file__).resolve().parent
-TIMEOUT = 5.0  # seconds without a sync before a player counts as disconnected
+TIMEOUT = 5.0  # seconds without a sync before a player is dropped and their role is freed
+PEER_STALE = 2.0  # a partner silent this long is not reported, so the other laptop notices quickly
+
+sys.stdout.reconfigure(line_buffering=True)  # show prints at once in hosted logs (e.g. Render)
 
 lock = threading.Lock()
 clients = {}  # id -> {"role", "pos", "share", "inbox", "seen"}
@@ -24,6 +34,7 @@ clients = {}  # id -> {"role", "pos", "share", "inbox", "seen"}
 def active():
     now = time.time()
     for cid in [c for c, v in clients.items() if now - v["seen"] > TIMEOUT]:
+        print(f"Player {clients[cid]['role']} left")
         del clients[cid]
     return clients
 
@@ -87,10 +98,15 @@ class Handler(SimpleHTTPRequestHandler):
                     clients[pid]["inbox"].extend(data.get("out") or [])
                 inbox, me["inbox"] = me["inbox"], []
                 peer = None
-                if pid:
+                if pid and time.time() - clients[pid]["seen"] < PEER_STALE:
                     p = clients[pid]
                     peer = {"pos": p["pos"], "share": p["share"]}
                 return self.reply({"peer": peer, "inbox": inbox})
+            if self.path == "/api/leave":  # sent when a tab closes, so the partner hears at once
+                me = clients.pop(data.get("id"), None)
+                if me:
+                    print(f"Player {me['role']} left")
+                return self.reply({})
         self.reply({"error": "not found"}, 404)
 
 

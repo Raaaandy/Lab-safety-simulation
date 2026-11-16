@@ -1,8 +1,6 @@
 // scene.js: the Phaser scene that ties everything together.
-// create() builds the room and the player; update() runs every frame.
-// The scene's other abilities come from render.js, drill.js, rules.js and awareness.js (added at the bottom).
-
-const START = {x:625, y:72};   // where the player starts, by the cubbies at the top-right entrance
+// create() builds the room and the player(s); update() runs every frame.
+// The scene's other abilities come from render.js, drill.js, rules.js, awareness.js and net.js (added at the bottom).
 
 class Lab extends Phaser.Scene{
   constructor(){ super('lab'); }
@@ -10,11 +8,24 @@ class Lab extends Phaser.Scene{
   get step(){ return STEPS[this.s.step]; }
 
   create(){
-    this.player = null;
+    this.player = null; this.partner = null; this.alarm = null;
+
+    // Who am I? Single-player is always Player 1. In two-player mode the guest (Player 2)
+    // only draws what the host sends, while the host is connected (see net.js).
+    this.me = NET.on ? NET.role : 1;
+    this.other = 3 - this.me;
+    this.guest = NET.on && NET.role === 2 && peerOnline();
+    this._online = peerOnline();
+    this.shownStep = null; this.spillShown = false; this.endShown = false; this.shareKey = null;
+    if(this.guest) NET.staleRun = NET.lastRun;   // ignore snapshots from before this restart
 
     // Game state. Everything that changes during a drill lives here.
-    this.s = {step:0, ppe:false, carry:false, kit:false, spill:false, score:100,
+    // splashed: which player gets the eye splash. ps: what each player has on or is carrying.
+    this.s = {run:Math.random(), step:0, spill:false, score:100, splashed:this.me,
               flags:{}, violations:[], timer:null, t0:this.time.now, runT:0, done:false};
+    const fresh = () => ({ppe:false, carry:false, kit:false, out:false});
+    this.ps = {1:fresh(), 2:fresh()};
+    this.ranSent = {};
 
     // Drawing layers
     this.mapG = this.add.graphics();
@@ -29,19 +40,34 @@ class Lab extends Phaser.Scene{
     WALLS.forEach(w => addSolid(...w));
     OBJ.forEach(o => addSolid(o.x, o.y, o.w, o.h));
 
+    const font = 'Atkinson Hyperlegible, sans-serif';
+    const tag = (text, bg) => this.add.text(0, -28, text, {fontFamily:font, fontSize:'13px', fontStyle:'bold',
+      color:'#fff', backgroundColor:bg, padding:{x:4,y:1}}).setOrigin(.5,1).setDepth(8);
+
+    // The partner (two-player only): an orange circle, drawn only. Its position comes from the network.
+    const q0 = STARTS[this.other];
+    this.partner = this.add.container(q0.x, q0.y).setVisible(false);
+    this.qBody  = this.add.circle(0, 0, 11, hex('--partner')).setStrokeStyle(3, hex('--paper'));
+    this.qNose  = this.add.triangle(0, -15, -5, 4, 5, 4, 0, -4, hex('--partner'));
+    this.qCarry = this.add.rectangle(10, 8, 8, 10, hex('--red')).setVisible(false);
+    this.partner.add([this.qBody, this.qNose, this.qCarry]);
+    this.qTag = tag('P' + this.other, '#9A4A05').setVisible(false);   // name tags are separate so they don't rotate
+
     // The player: a blue circle with a direction marker and a carried-item square
-    this.player = this.add.container(START.x, START.y);
+    const p0 = STARTS[this.me];
+    this.player = this.add.container(p0.x, p0.y);
     this.pBody  = this.add.circle(0, 0, 11, hex('--blue')).setStrokeStyle(3, hex('--paper'));
     this.pNose  = this.add.triangle(0, -15, -5, 4, 5, 4, 0, -4, hex('--blue'));
     this.pCarry = this.add.rectangle(10, 8, 8, 10, hex('--red')).setVisible(false);
     this.player.add([this.pBody, this.pNose, this.pCarry]);
+    this.pTag = tag('P' + this.me + ' (you)', '#1F5FA8').setVisible(NET.on);
     this.physics.add.existing(this.player);
     this.player.body.setCircle(11, -11, -11).setCollideWorldBounds(true);
-    this.physics.world.setBounds(8, 6, 758, 1110);
+    this.physics.world.setBounds(4, 4, W - 8, H - 8);
     this.physics.add.collider(this.player, this.solids);
 
     // "E" bubble and the red fire-alarm flash
-    this.prompt = this.add.text(0, 0, '', {fontFamily:'Atkinson Hyperlegible, sans-serif', fontSize:'16px', fontStyle:'bold',
+    this.prompt = this.add.text(0, 0, '', {fontFamily:font, fontSize:'16px', fontStyle:'bold',
       color:'#fff', backgroundColor:'#1C2630', padding:{x:6,y:3}}).setOrigin(.5,1).setDepth(10).setVisible(false);
     this.flash = this.add.rectangle(W/2, H/2, W, H, hex('--red'), 0).setDepth(9);
 
@@ -59,20 +85,33 @@ class Lab extends Phaser.Scene{
     this.input.on('pointerup', () => this.pointerTarget = null);
 
     $('log').innerHTML = '';
-    log('You are at the top-right entrance of B035. Arrow keys or WASD to move, E to interact.');
-    this.enterStep();
+    if(!NET.on){
+      log('You are at the entrance of B035, top left of the map, next to the cubbies. Arrow keys or WASD to move, E to interact.');
+      if(NET.full) log('Two players are already connected, so you are playing on your own.');
+    } else {
+      log(`Two-player mode. You are ${pname(this.me)}, the blue circle, at the entrance next to the cubbies, top left of the map. ` +
+          (peerOnline() ? 'Your partner is the orange circle.' : 'Waiting for your partner to join; you can start on your own.'));
+    }
+    if(this.guest) this.stepFx(); else this.enterStep();
     this.refreshHUD();
   }
 
   update(time, delta){
+    if(this.updateNet()) return;    // net.js: partner, messages, host snapshot (does nothing in single-player)
+    this.pTag.setPosition(this.player.x, this.player.y - 16);
     if(this.s.done) return;
     const dt = delta / 1000;
     const running = this.movePlayer();
+    if(!this.step) return;
 
-    this.checkRules(dt, running);   // rules.js
-    this.updateTimer(dt);           // rules.js
+    this.checkRunning(dt, running);  // rules.js
+    if(!this.guest){                 // the host (or single player) runs the drill
+      this.checkRules();             // rules.js
+      this.updateTimer(dt);          // rules.js
+      if(this.checkEvacuation()) return;  // rules.js
+    }
+    this.warnTimer();               // rules.js
     this.showTimer();               // render.js
-    if(this.checkEvacuation()) return;  // rules.js
     this.updateProximity();         // awareness.js
     this.drawTargetRing(time);      // render.js
   }
@@ -86,6 +125,7 @@ class Lab extends Phaser.Scene{
       const dx = this.pointerTarget.x - p.x, dy = this.pointerTarget.y - p.y;
       if(Math.hypot(dx, dy) > 6){ vx = dx; vy = dy; }
     }
+    if(this.ps[this.me].out){ vx = vy = 0; }      // already out of the building during the evacuation
     const len = Math.hypot(vx, vy), running = k.SHIFT.isDown && len > 0, speed = running ? 260 : 140;
     if(len){ p.body.setVelocity(vx/len*speed, vy/len*speed); p.rotation = Math.atan2(vx, -vy); }
     else p.body.setVelocity(0);
@@ -94,4 +134,4 @@ class Lab extends Phaser.Scene{
 }
 
 // Give the scene the methods defined in the other files
-Object.assign(Lab.prototype, RenderMethods, DrillMethods, RuleMethods, AwarenessMethods);
+Object.assign(Lab.prototype, RenderMethods, DrillMethods, RuleMethods, AwarenessMethods, NetMethods);

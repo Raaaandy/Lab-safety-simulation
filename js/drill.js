@@ -1,83 +1,143 @@
-// drill.js: the drill steps. What happens when a step starts, and when the player presses E.
-// To add a new step: add it to STEPS in data.js, then add a matching `if` in act() below.
+// drill.js: the drill steps. What happens when a step starts, and when a player presses E.
+// To add a new step: add it to STEPS in data.js, then add a matching `case` in act() below.
+// In two-player mode only the host runs this logic; the guest's E presses arrive as act(2, position).
 // These functions are added to the Lab scene (see scene.js), so `this` is the scene.
 
 const DrillMethods = {
 
-  // Runs when a step begins
-  enterStep(){
+  // The instruction for the current step, in single- or two-player wording
+  stepText(){
     const st = this.step;
-    if(!st) return this.finish();
-    if(st.id === 'kit'){ this.s.spill = true; this.drawSpill(); beep(660, .12, 2); }
+    if(!st) return '';
+    if(this.team() && st.id === 'eyewash'){
+      const s = this.s.splashed;
+      return `${pname(s)} got a splash in the eye! ${pname(s)}: reach the eyewash station just right of the centrifugal pump. ${pname(3-s)}: guide them there.`;
+    }
+    return (this.team() && st.teamText) || st.text;
+  },
+
+  // Sounds, the spill and the alarm for the current step (runs on both laptops)
+  stepFx(){
+    const st = this.step;
+    this.drawSpill();
+    if(!st || st.id !== 'evac') this.stopAlarm();
+    if(!st) return;
+    if(st.id === 'kit') beep(660, .12, 2);
     if(st.id === 'eyewash') beep(520, .2, 2);
     if(st.id === 'evac') this.startAlarm();
+  },
+
+  // Runs when a step begins (host / single player)
+  enterStep(){
+    const st = this.step;
+    if(st && st.id === 'kit') this.s.spill = true;
+    this.stepFx();
+    if(!st) return this.finish();
     this.s.timer = st.timer ? st.timer : null;
     this.s.timerFailed = false; this.s.warned = false;
-    log(st.text, st.urgent ? 'bad' : null);
+    log(this.stepText(), st.urgent ? 'bad' : null);   // the guest logs it from the host's snapshot
     this.refreshHUD();
   },
 
   // Finish the current step and move on
   advance(msg){
-    if(msg) log(msg, 'good');
-    if(this.step && this.step.id === 'evac') this.stopAlarm();
+    if(msg) say(msg, 'good');
     this.s.step++;
     this.enterStep();
   },
 
-  // The E key: complete the current step if the player is in the right place,
-  // otherwise read the safety note of the nearest object.
-  act(){
+  // The E key. pn = which player pressed it, pos = where they were standing.
+  // Completes the current step if that player is in the right place, otherwise reads the nearest safety note.
+  act(pn=this.me, pos=null){
+    pos = pos || {x:this.player.x, y:this.player.y};
+    if(this.guest && pn === this.me){ if(!this.s.done) send({t:'act', x:pos.x, y:pos.y}); return; }
     if(this.s.done) return;
-    const st = this.step, p = this.player;
+    const st = this.step, P = this.ps[pn], team = this.team(), at = ids => this.nearObj(ids, 38, pos);
 
-    if(st.id === 'ppe' && this.nearObj(['cubbyA','cubbyB'])){
-      this.s.ppe = true;
-      return this.advance('Bag stored. Goggles, lab coat and nitrile gloves on.');
-    }
-    if(st.id === 'get' && this.nearObj(['flam'])){
-      this.s.carry = true;
-      return this.advance('Picked up the acetone. Carry it with both hands.');
-    }
-    if(st.id === 'hood'){
-      if(this.nearObj(['hood'])) return this.advance('Acetone dispensed in the hood with the sash lowered.');
-      const benches = OBJ.filter(o => o.kind === 'bench').map(o => o.id);
-      if(this.nearObj(benches)) return this.violate('bench', 'Tried to dispense acetone on an open bench. Volatile solvents go in the fume hood.');
-    }
-    if(st.id === 'return' && this.nearObj(['flam'])){
-      this.s.carry = false;
-      return this.advance('Bottle returned and cabinet doors closed.');
-    }
-    if(st.id === 'kit' && this.nearObj(['blue'])){
-      this.s.kit = true;
-      return this.advance('Spill kit in hand: absorbent pads, scoop, waste bag.');
-    }
-    if(st.id === 'clean' && Math.hypot(p.x-SPILL.x, p.y-SPILL.y) < SPILL.r+34){
-      this.s.spill = false; this.s.kit = false; this.drawSpill();
-      return this.advance('Spill absorbed from the edges inward and bagged as hazardous waste.');
-    }
-    if(st.id === 'eyewash' && this.nearObj(['eyewash'])){
-      return this.advance('Eyewash running. In a real splash, keep flushing for 15 minutes and report it.');
+    switch(st.id){
+      case 'ppe':
+        if(!P.ppe && at(['cubbyA','cubbyB'])){
+          P.ppe = true;
+          if(this.players().every(n => this.ps[n].ppe))
+            return this.advance(team ? 'Both players are geared up: goggles, lab coats and nitrile gloves on.'
+                                     : 'Bag stored. Goggles, lab coat and nitrile gloves on.');
+          say(`${pname(pn)} is geared up. Waiting for ${pname(3-pn)} to gear up at the cubbies.`);
+          this.refreshHUD(); return;
+        }
+        break;
+      case 'get':
+        if(at(['flam'])){
+          P.carry = true;
+          return this.advance(`${team ? pname(pn) + ' picked' : 'Picked'} up the acetone. Carry it with both hands.`);
+        }
+        break;
+      case 'hood':
+        if(P.carry){
+          if(at(['hood'])) return this.advance('Acetone dispensed in the hood with the sash lowered.');
+          const benches = OBJ.filter(o => o.kind === 'bench').map(o => o.id);
+          if(at(benches)) return this.violate('bench', 'Tried to dispense acetone on an open bench. Volatile solvents go in the fume hood.', pn);
+        } else if(at(['hood'])) return say(`${pname(3-pn)} has the acetone. They need to bring it here.`, null, pn);
+        break;
+      case 'return':
+        if(P.carry && at(['flam'])){
+          P.carry = false;
+          return this.advance('Bottle returned and cabinet doors closed.');
+        }
+        if(!P.carry && at(['flam'])) return say(`${pname(3-pn)} has the acetone. They need to bring it back here.`, null, pn);
+        break;
+      case 'kit':
+        if(at(['blue'])){
+          P.kit = true;
+          return this.advance(team ? `${pname(pn)} has the spill kit: absorbent pads, scoop, waste bag.`
+                                   : 'Spill kit in hand: absorbent pads, scoop, waste bag.');
+        }
+        break;
+      case 'clean':
+        if(this.nearSpill(pos, 34)){
+          if(team && !this.players().every(n => this.nearSpill(this.posOf(n), 60)))
+            return say('You need your partner at the spill to contain it from both sides.', null, pn);
+          // The player who held the kit gets the splash in the next step
+          this.s.splashed = this.players().find(n => this.ps[n].kit) || pn;
+          [1, 2].forEach(n => this.ps[n].kit = false);
+          this.s.spill = false;
+          this.drawSpill();
+          return this.advance(team ? 'Together you contained the spill from both sides, absorbed it and bagged it as hazardous waste.'
+                                   : 'Spill absorbed from the edges inward and bagged as hazardous waste.');
+        }
+        break;
+      case 'eyewash':
+        if(pn === this.s.splashed && at(['eyewash']))
+          return this.advance('Eyewash running. In a real splash, keep flushing for 15 minutes and report it.');
+        break;
     }
 
-    // Not a step action: read the nearest object's safety note
-    const o = this.nearest();
-    if(o) log(o.label + ': ' + o.note);
+    // Not a step action: read the nearest object's safety note to the player who pressed E
+    const o = this.nearest(38, pos);
+    if(o) say(o.label + ': ' + o.note, null, pn);
   },
 
-  // Is the player somewhere they can complete the current step? Returns the thing to press E on, or null.
-  actionTarget(){
-    const st = this.step, p = this.player;
+  // Can this player complete the current step from here? Returns the thing to press E on, or null.
+  // Used for the E bubble and the "Nearby" box on both laptops.
+  actionTarget(pn=this.me, pos=this.player){
+    const st = this.step, P = this.ps[pn];
     if(!st || this.s.done) return null;
-    if(st.id === 'clean') return Math.hypot(p.x-SPILL.x, p.y-SPILL.y) < SPILL.r+34 ? {label:'Spill'} : null;
-    if(st.target[0] === 'exit') return null;
-    return this.nearObj(st.target) || null;
+    const at = ids => this.nearObj(ids, 38, pos) || null;
+    switch(st.id){
+      case 'ppe':    return P.ppe ? null : at(['cubbyA','cubbyB']);
+      case 'get':    return at(['flam']);
+      case 'hood':   return P.carry ? at(['hood']) : null;
+      case 'return': return P.carry ? at(['flam']) : null;
+      case 'kit':    return at(['blue']);
+      case 'clean':  return this.nearSpill(pos, 34) ? {label:'Spill'} : null;
+      case 'eyewash':return pn === this.s.splashed ? at(['eyewash']) : null;
+    }
+    return null;
   },
 
   // Where the guide ring goes for the current step
   targetPoint(){
     const st = this.step, p = this.player;
-    if(!st) return null;
+    if(!st || this.s.done) return null;
     if(st.target[0] === 'spill') return {x:SPILL.x, y:SPILL.y, r:SPILL.r+14};
     if(st.target[0] === 'exit'){
       const e = EXITS.slice().sort((a,b) => Math.hypot(a.x-p.x,a.y-p.y) - Math.hypot(b.x-p.x,b.y-p.y))[0];
@@ -89,19 +149,21 @@ const DrillMethods = {
   },
 
   startAlarm(){
+    if(this.alarm) return;
     this.tweens.add({targets:this.flash, alpha:{from:0, to:.18}, yoyo:true, repeat:-1, duration:450});
     this.alarm = this.time.addEvent({delay:900, loop:true, callback:() => beep(990, .25)});
   },
   stopAlarm(){
-    if(this.alarm) this.alarm.remove();
+    if(this.alarm){ this.alarm.remove(); this.alarm = null; }
     this.tweens.killTweensOf(this.flash); this.flash.setAlpha(0);
   },
 
   finish(){
     this.s.done = true;
     this.player.body.setVelocity(0);
-    const secs = Math.round((this.time.now - this.s.t0) / 1000), v = this.s.violations;
-    log(`Drill complete in ${secs} s. Score ${this.s.score}/100. ${v.length ? v.length+' violation(s): '+v.join(' ') : 'No violations.'}`, v.length ? null : 'good');
+    const secs = this.s.secs = Math.round((this.time.now - this.s.t0) / 1000), v = this.s.violations;
+    say(`Drill complete in ${secs} s. ${this.team() ? 'Team score' : 'Score'} ${this.s.score}/100. ${v.length ? v.length+' violation(s): '+v.join(' ') : 'No violations.'}`, v.length ? null : 'good');
+    this.endShown = true;
     this.showEndScreen(secs);
   },
 };
