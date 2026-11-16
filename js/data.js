@@ -62,24 +62,35 @@ const TROUGH = {x:428,y:46,w:20,h:1052};
 const SPILL = {x:290,y:478,r:24};
 
 // The drill, in order. Each step needs:
-//   id      a short name, used in drill.js (act) and rules.js
-//   text    the instruction shown on the task card and read aloud
-//   target  object ids from OBJ (or 'spill' / 'exit') that the guide ring points to
-//   urgent  (optional) shows the task card in red
-//   timer   (optional) seconds allowed before it counts as a violation
+//   id       a short name, used in drill.js (act) and rules.js
+//   text     the instruction shown on the task card and read aloud
+//   teamText (optional) the wording used instead when two players are connected (see TWO-PLAYER.md)
+//   target   object ids from OBJ (or 'spill' / 'exit') that the guide ring points to
+//   urgent   (optional) shows the task card in red
+//   timer    (optional) seconds allowed before it counts as a violation
+// The two-player eyewash wording names the splashed player, so it is built in stepText() in drill.js.
 const STEPS = [
-  {id:'ppe',   text:'Put on your PPE at the cubbies by the entrance.', target:['cubbyA','cubbyB']},
-  {id:'get',   text:'Collect the acetone bottle from the flammables cabinet.', target:['flam']},
-  {id:'hood',  text:'Dispense the acetone inside the fume hood.', target:['hood']},
-  {id:'return',text:'Return the bottle to the flammables cabinet.', target:['flam']},
-  {id:'kit',   text:'Spill by the benches! Fetch the spill kit from the blue cabinet.', target:['blue'], urgent:true},
-  {id:'clean', text:'Clean up the spill. Don’t walk through it.', target:['spill'], urgent:true},
+  {id:'ppe',   text:'Put on your PPE at the cubbies by the entrance.',
+               teamText:'Both players: put on your PPE at the cubbies by the entrance.', target:['cubbyA','cubbyB']},
+  {id:'get',   text:'Collect the acetone bottle from the flammables cabinet.',
+               teamText:'One of you: collect the acetone bottle from the flammables cabinet.', target:['flam']},
+  {id:'hood',  text:'Dispense the acetone inside the fume hood.',
+               teamText:'The player carrying the acetone: dispense it inside the fume hood.', target:['hood']},
+  {id:'return',text:'Return the bottle to the flammables cabinet.',
+               teamText:'The player carrying the acetone: return the bottle to the flammables cabinet.', target:['flam']},
+  {id:'kit',   text:'Spill by the benches! Fetch the spill kit from the blue cabinet.',
+               teamText:'Spill by the benches! One of you guards the spill to keep others away while the other fetches the spill kit from the blue cabinet.', target:['blue'], urgent:true},
+  {id:'clean', text:'Clean up the spill. Don’t walk through it.',
+               teamText:'Contain the spill together: both of you stand at the edge of the spill, then press E. Don’t walk through it.', target:['spill'], urgent:true},
   {id:'eyewash',text:'A drop splashed into your eye. Reach the eyewash station just right of the centrifugal pump.', target:['eyewash'], urgent:true, timer:10},
-  {id:'evac',  text:'Fire alarm. Leave by the nearest exit, don’t stop for belongings.', target:['exit'], urgent:true, timer:25},
+  {id:'evac',  text:'Fire alarm. Leave by the nearest exit, don’t stop for belongings.',
+               teamText:'Fire alarm. Both of you leave by the nearest exit; don’t stop for belongings.', target:['exit'], urgent:true, timer:25},
 ];
 
 // Where the player starts: by the cubbies at the entrance (original orientation)
 const START = {x:625, y:72};
+// In two-player mode, Player 2 starts a little further into the entrance
+const START2 = {x:665, y:112};
 
 // ---------- Rotate the plan to landscape ----------
 // The PDF is portrait (taller than wide). Screens are landscape, so the plan is turned
@@ -96,7 +107,7 @@ if(LANDSCAPE){
   OBJ.forEach(turnRect);
   turnRect(TROUGH);
   UTILS.forEach(a => { const p = {x:a[0], y:a[1]}; turnPoint(p); a[0] = p.x; a[1] = p.y; });
-  [SPILL, START, ...EXITS].forEach(turnPoint);
+  [SPILL, START, START2, ...EXITS].forEach(turnPoint);
 }
 
 // Name each exit by the screen edge it is on (top of the screen = north), e.g. "west door (upper)"
@@ -114,3 +125,5 @@ EXITS.forEach(e => {
   e.name = `${e.side} door${part}`;
 });
 
+// Start point for each player number (single-player is always Player 1)
+const STARTS = {1:START, 2:START2};

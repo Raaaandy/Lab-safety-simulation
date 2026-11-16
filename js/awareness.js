@@ -4,20 +4,24 @@
 
 const AwarenessMethods = {
 
-  // First object from `ids` within `d` pixels of the player, or undefined
-  nearObj(ids, d=38){
-    const p = this.player;
-    return OBJ.find(o => ids.includes(o.id) && distToRect(p.x, p.y, o) <= d);
+  // First object from `ids` within `d` pixels of pos (default: this laptop's player), or undefined
+  nearObj(ids, d=38, pos=this.player){
+    return pos ? OBJ.find(o => ids.includes(o.id) && distToRect(pos.x, pos.y, o) <= d) : undefined;
   },
 
-  // Closest labelled object within `d` pixels, or null
-  nearest(d=38){
-    const p = this.player; let best = null, bd = d;
-    OBJ.forEach(o => { if(!o.label) return; const k = distToRect(p.x, p.y, o); if(k <= bd){ bd = k; best = o; } });
+  // Closest labelled object within `d` pixels of pos, or null
+  nearest(d=38, pos=this.player){
+    let best = null, bd = d;
+    OBJ.forEach(o => { if(!o.label) return; const k = distToRect(pos.x, pos.y, o); if(k <= bd){ bd = k; best = o; } });
     return best;
   },
 
-  // Q key: the three nearest objects with distance and direction, plus the current target
+  // Is pos within `extra` pixels of the spill's edge?
+  nearSpill(pos, extra){
+    return !!pos && Math.hypot(pos.x-SPILL.x, pos.y-SPILL.y) < SPILL.r + extra;
+  },
+
+  // Q key: the three nearest objects with distance and direction, the current target, and the partner
   describe(){
     const p = this.player;
     const list = OBJ.filter(o => o.label)
@@ -27,7 +31,9 @@ const AwarenessMethods = {
     const t = this.targetPoint();
     let extra = '';
     if(t){ const d = Math.hypot(t.x-p.x, t.y-p.y) * M_PER_PX; extra = ` Current target is about ${d.toFixed(1)} m ${compass(t.x-p.x, t.y-p.y)}.`; }
-    log('Nearest: ' + list.join('; ') + '.' + extra);
+    const q = this.team() && this.posOf(this.other);
+    if(q){ const d = Math.hypot(q.x-p.x, q.y-p.y) * M_PER_PX; extra += ` Your partner is ${d.toFixed(1)} m ${compass(q.x-p.x, q.y-p.y)}.`; }
+    say('Nearest: ' + list.join('; ') + '.' + extra, null, this.me);
   },
 
   // Every frame: update the "Nearby" box and the E bubble, and announce changes once

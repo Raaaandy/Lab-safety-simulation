@@ -1,7 +1,7 @@
 /* Page layout, colours (light + dark mode) and the side panel. The game map itself is drawn in js/render.js. */
 :root{
   --paper:#EEF1F3; --surface:#FFFFFF; --ink:#1C2630; --muted:#56626E; --line:#2E3944;
-  --obj:#DCE2E7; --yellow:#F2C200; --green:#00855A; --red:#C8102E; --blue:#1F5FA8;
+  --obj:#DCE2E7; --yellow:#F2C200; --green:#00855A; --red:#C8102E; --blue:#1F5FA8; --partner:#C25E00;
   --hood:#FFF3B8; --flam:#F8D3D8; --wash:#CDEBDD; --cab:#D2E0F2; --trough:#B9C3CC;
   color-scheme: light;
   box-sizing:border-box;
@@ -11,14 +11,14 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#151B21; --surface:#1E262E; --ink:#E7ECF0; --muted:#9AA6B1; --line:#C3CDD6;
-    --obj:#2A343E; --yellow:#F2C200; --green:#2DB07F; --red:#F0566B; --blue:#6EA4E8;
+    --obj:#2A343E; --yellow:#F2C200; --green:#2DB07F; --red:#F0566B; --blue:#6EA4E8; --partner:#F08C2E;
     --hood:#4A4120; --flam:#4D2830; --wash:#1F4636; --cab:#22364F; --trough:#3A4550;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"]{
   --paper:#151B21; --surface:#1E262E; --ink:#E7ECF0; --muted:#9AA6B1; --line:#C3CDD6;
-  --obj:#2A343E; --yellow:#F2C200; --green:#2DB07F; --red:#F0566B; --blue:#6EA4E8;
+  --obj:#2A343E; --yellow:#F2C200; --green:#2DB07F; --red:#F0566B; --blue:#6EA4E8; --partner:#F08C2E;
   --hood:#4A4120; --flam:#4D2830; --wash:#1F4636; --cab:#22364F; --trough:#3A4550;
   color-scheme: dark;
 }

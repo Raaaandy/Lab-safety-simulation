@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -38,6 +39,7 @@
       <span class="chip" id="chipPPE">PPE off</span>
       <span class="chip" id="chipCarry">Hands empty</span>
       <span class="chip" id="chipScore">Score 100</span>
+      <span class="chip" id="chipRole" hidden></span>
     </div>
     <section class="box">
       <h2>Nearby</h2>
@@ -78,6 +80,7 @@
 <script src="js/drill.js"></script>      <!-- what each step does, the E key -->
 <script src="js/rules.js"></script>      <!-- safety rules, timers, evacuation -->
 <script src="js/awareness.js"></script>  <!-- nearby objects, Describe (Q) -->
+<script src="js/net.js"></script>        <!-- optional two-player mode over server.py (see TWO-PLAYER.md) -->
 <script src="js/scene.js"></script>      <!-- the Phaser scene that ties it together -->
 <script src="js/main.js"></script>       <!-- starts the game, connects buttons -->
 </body>

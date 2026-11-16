@@ -22,6 +22,12 @@ There are two versions:
 - **Simple view** (`index.html`): the whole floor plan is visible at once, with high-contrast shapes and large labels. Recommended for low-vision players and screen reader users.
 - **Pixel-art view** (`pixel.html`): a close-up, game-style view where the camera follows your character.
 
+## Playing with a partner
+
+Two people can play together on two laptops on the same Wi-Fi: one runs `server.py`, and both open the game from it. Some steps then need both of you, such as containing the spill from both sides and both getting out during the fire alarm. The team shares one score. See [TWO-PLAYER.md](TWO-PLAYER.md) for how to set it up.
+
+The online version and a double-clicked `index.html` are always single-player.
+
 ## Controls
 
 | Action | Keyboard | Touch / mouse |
@@ -98,7 +104,10 @@ js/drill.js         what each step does when it starts, and the E key
 js/rules.js         safety rules, timers, evacuation check
 js/awareness.js     nearby objects, the "Nearby" box, Describe (Q)
 js/scene.js         the Phaser scene: setup, movement, and the per-frame loop
+js/net.js           optional two-player mode: joining, syncing, messages to the partner
 js/main.js          starts the game and connects the buttons
+server.py           two-player server: serves the game and relays messages (Python standard library only)
+TWO-PLAYER.md       how to play on two laptops
 pixel.html          pixel-art version (single file, same drill and rules)
 README.md           this file
 ```
@@ -121,6 +130,10 @@ The scripts are plain `<script>` tags rather than ES modules, so the game still 
 | Change the Describe (Q) output or proximity announcements | `js/awareness.js` |
 | Change how the map or side panel looks | `js/render.js`, `css/style.css` |
 | Change movement speed or controls | `js/scene.js` → `movePlayer()`, `create()` |
+| Change two-player wording | `teamText` in `STEPS` (`js/data.js`); the eyewash wording is in `stepText()` (`js/drill.js`) |
+| Change which steps need both players | `act()` in `js/drill.js` (PPE, spill) and `checkEvacuation()` in `js/rules.js` |
+| Change two-player networking (what is synced, connects / disconnects) | `js/net.js` |
+| Change the two-player server | `server.py` |
 
 ## Map orientation
 
@@ -128,19 +141,24 @@ The coordinates in `js/data.js` are traced from the PDF in its original portrait
 
 ## How it fits together
 
-`scene.js` defines one Phaser scene, `Lab`. The other files each add a group of methods to it (`RenderMethods`, `DrillMethods`, `RuleMethods`, `AwarenessMethods`), so inside any of them `this` is the scene. The game state lives in `this.s` (current step, score, PPE, what the player is carrying, spill, timer, violations).
+`scene.js` defines one Phaser scene, `Lab`. The other files each add a group of methods to it (`RenderMethods`, `DrillMethods`, `RuleMethods`, `AwarenessMethods`, `NetMethods`), so inside any of them `this` is the scene. The game state lives in `this.s` (current step, score, spill, timer, violations) and `this.ps` (for each player: PPE, carrying acetone or the spill kit, out of the building). `this.me` is this laptop's player number, which is always 1 in single-player.
 
 Every frame, `update()` in `scene.js` runs:
 
 ```
+updateNet()        net.js         two-player only: partner's circle, messages, host snapshot
 movePlayer()       scene.js       keyboard / touch movement
-checkRules()       rules.js       running, PPE, ignition, spill
-updateTimer()      rules.js       countdown + 5-second warning
+checkRunning()     rules.js       running (each laptop checks its own player)
+checkRules()       rules.js       PPE, ignition, spill, for every player
+updateTimer()      rules.js       countdown and timer violations
+checkEvacuation()  rules.js       has every player reached an exit during the fire alarm?
+warnTimer()        rules.js       5-second warning
 showTimer()        render.js      countdown on the task card
-checkEvacuation()  rules.js       reached an exit during the fire alarm?
 updateProximity()  awareness.js   "Nearby" box, E bubble, announcements
 drawTargetRing()   render.js      pulsing ring on the current target
 ```
+
+In two-player mode, Player 1's laptop (the host) runs `checkRules()`, `updateTimer()` and `checkEvacuation()` for both players; Player 2's laptop skips them and draws the drill from the host's snapshot. Player 2's E presses reach the host as `act(2, position)`.
 
 ```mermaid
 flowchart LR
@@ -162,7 +180,7 @@ flowchart LR
 ```
 
 Two rules keep the game accessible:
-- **Never show information only on the canvas.** If the player needs to know it, send it through `log()` or `announce()` in `feedback.js`.
+- **Never show information only on the canvas.** If the player needs to know it, send it through `log()` or `announce()` in `feedback.js`. For game events, use `say()` in `net.js`: it calls `log()` and, in two-player mode, sends the same message to the partner's laptop.
 - **Keep screen reader output outside the side panel.** The live region `#sr` sits under the map, so announcements still work when the panel is hidden.
 - **Keep content in the data.** Add new rooms or steps by editing `data.js`, not by hard-coding them into the logic.
 
@@ -174,6 +192,8 @@ You can open `index.html` directly, but a local server behaves more like the rea
 python -m http.server 8000
 # then open http://localhost:8000/
 ```
+
+To work on two-player mode, run `python server.py` instead and open `http://localhost:8000/` in two browser windows: the first is Player 1, the second Player 2.
 
 To work offline, download [phaser.min.js 3.80.1](https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js) into the project folder and change the Phaser `<script>` line in `index.html` to `<script src="phaser.min.js"></script>`.
 
@@ -195,19 +215,9 @@ Right now the spill takes two actions: fetch the kit, then press E once at the s
 | Mistakes (wiping from the centre outward, skipping the SDS) | `violate()` calls in `act()` or `checkRules()` |
 | Stages that take time ("hold E for 3 seconds") | a counter in `this.s`, increased in `update()` while E is held |
 
-### B. Two-player co-op spill cleanup
+### Implemented: two-player co-op
 
-Some spill tasks need two people: one keeps others away from the spill while the other fetches the kit, and both lay the absorbent together. A first version can run on one keyboard (Player 1: WASD + E, Player 2: arrow keys + Enter).
-
-| Change | Where |
-|---|---|
-| Second player and its keys | `create()` and `movePlayer()` in `js/scene.js` (move for each player) |
-| Actions know which player acted | `act(playerNumber)` in `js/drill.js`; `nearObj()` / `nearest()` in `js/awareness.js` take a player |
-| Steps that need both players | add `coop: true` to those steps in `js/data.js`; in `act()`, complete them only when both players are in position |
-| Rules for each player | loop over both players in `checkRules()` (`js/rules.js`) |
-| Messages say which player | prefix `log()` messages with "Player 1:" / "Player 2:" so screen reader users know who is addressed |
-
-Playing on two laptops needs a small server to pass messages between the browsers; do this only after the one-keyboard version works. Keep a single-player mode for players who can't share a keyboard, and don't time co-op steps by default.
+Two-player co-op on two laptops is now built in; see [TWO-PLAYER.md](TWO-PLAYER.md), `js/net.js` and `server.py`. Ideas for later: a one-keyboard version (Player 2 on the arrow keys) for players who share a laptop, and co-op stages for the realistic spill procedure above.
 
 ## Adapting to another lab
 

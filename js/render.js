@@ -1,4 +1,5 @@
 // render.js: drawing. The map, the spill, the guide ring, the side-panel status and the end screen.
+// In two-player mode the side panel shows this laptop's player; the score is shared.
 // These functions are added to the Lab scene (see scene.js), so `this` is the scene.
 
 const RenderMethods = {
@@ -41,6 +42,7 @@ const RenderMethods = {
       if(vertical) t.setAngle(-90);
       this.labels.push(t);
     });
+    if(this.partner) this.children.bringToTop(this.partner);
     if(this.player) this.children.bringToTop(this.player);
   },
 
@@ -61,26 +63,34 @@ const RenderMethods = {
     this.ring.lineStyle(3, hex(this.step.urgent ? '--red' : '--green'), .9).strokeCircle(t.x, t.y, t.r+pulse);
   },
 
-  // Side panel: task card, PPE / carrying / score chips
+  // Side panel: task card, PPE / carrying / score / two-player chips
   refreshHUD(){
-    const st = this.step;
+    const st = this.step, P = this.ps[this.me], Q = this.ps[this.other];
+    const scoreWord = this.team() ? 'Team score' : 'Score';
     $('stepNo').textContent = st ? `Step ${this.s.step+1} of ${STEPS.length}` : 'Complete';
-    $('task').textContent = st ? st.text : `Drill finished. Score ${this.s.score}/100.`;
+    $('task').textContent = st ? this.stepText() : `Drill finished. ${scoreWord} ${this.s.score}/100.`;
     $('sign').classList.toggle('urgent', !!(st && st.urgent));
-    $('chipPPE').textContent = this.s.ppe ? 'PPE on' : 'PPE off';
-    $('chipPPE').classList.toggle('on', this.s.ppe);
-    $('chipCarry').textContent = this.s.carry ? 'Carrying acetone' : (this.s.kit ? 'Carrying spill kit' : 'Hands empty');
-    $('chipCarry').classList.toggle('on', this.s.carry || this.s.kit);
-    $('chipScore').textContent = 'Score ' + this.s.score;
+    $('chipPPE').textContent = P.ppe ? 'PPE on' : 'PPE off';
+    $('chipPPE').classList.toggle('on', P.ppe);
+    $('chipCarry').textContent = P.carry ? 'Carrying acetone' : (P.kit ? 'Carrying spill kit' : 'Hands empty');
+    $('chipCarry').classList.toggle('on', P.carry || P.kit);
+    $('chipScore').textContent = scoreWord + ' ' + this.s.score;
+    // Two-player status (hidden in single-player)
+    const partner = `You: ${pname(this.me)}. Partner: ${this.team() ? 'connected' : 'not connected'}.`;
+    $('chipRole').hidden = !NET.on;
+    $('chipRole').textContent = partner;
+    $('chipRole').classList.toggle('on', this.team());
     // Task line in the "Latest" bar (shown only while the side panel is hidden)
     $('latestTask').innerHTML = '';
     const strong = document.createElement('strong');
     strong.textContent = st ? `Step ${this.s.step+1} of ${STEPS.length}: ` : 'Complete: ';
     const span = document.createElement('span');
-    span.textContent = st ? `${st.text}  Score ${this.s.score}.` : `Drill finished. Score ${this.s.score}/100.`;
+    span.textContent = (st ? `${this.stepText()}  ${scoreWord} ${this.s.score}.` : `Drill finished. ${scoreWord} ${this.s.score}/100.`)
+                       + (NET.on ? '  ' + partner : '');
     const t = document.createElement('span'); t.className = 't-timer'; t.id = 'latestTimer'; t.setAttribute('aria-hidden','true');
     $('latestTask').append(strong, span, t);
-    if(this.pCarry) this.pCarry.setVisible(this.s.carry || this.s.kit).setFillStyle(hex(this.s.carry ? '--red' : '--yellow'));
+    if(this.pCarry) this.pCarry.setVisible(P.carry || P.kit).setFillStyle(hex(P.carry ? '--red' : '--yellow'));
+    if(this.qCarry) this.qCarry.setVisible(Q.carry || Q.kit).setFillStyle(hex(Q.carry ? '--red' : '--yellow'));
   },
 
   // Countdown shown on the task card (hidden from screen readers; they get a 5-second warning instead)
@@ -97,8 +107,8 @@ const RenderMethods = {
     const v = this.s.violations, ink = css('--ink'), font = 'Atkinson Hyperlegible, sans-serif';
     $('timer').hidden = true; this.refreshHUD(); this.showTimer();
     this.add.rectangle(W/2, H/2, 520, 260, hex('--surface'), .96).setStrokeStyle(4, hex('--green')).setDepth(20);
-    this.add.text(W/2, H/2-70, 'You made it out.', {fontFamily:font, fontSize:'34px', fontStyle:'bold', color:ink}).setOrigin(.5).setDepth(21);
-    this.add.text(W/2, H/2+10, `Score ${this.s.score}/100 in ${secs} s\n${v.length} violation${v.length===1?'':'s'} — see the event log`,
+    this.add.text(W/2, H/2-70, this.team() ? 'You both made it out.' : 'You made it out.', {fontFamily:font, fontSize:'34px', fontStyle:'bold', color:ink}).setOrigin(.5).setDepth(21);
+    this.add.text(W/2, H/2+10, `${this.team() ? 'Team score' : 'Score'} ${this.s.score}/100 in ${secs} s\n${v.length} violation${v.length===1?'':'s'} — see the event log`,
       {fontFamily:font, fontSize:'20px', color:ink, align:'center'}).setOrigin(.5).setDepth(21);
     this.add.text(W/2, H/2+80, 'Press Restart to try again', {fontFamily:font, fontSize:'16px', color:css('--muted')}).setOrigin(.5).setDepth(21);
   },
