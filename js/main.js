@@ -1,5 +1,13 @@
 // main.js: starts the game and connects the side-panel buttons. Loaded last.
 
+function setPanelHidden(hidden){
+  $('main').classList.toggle('panel-hidden', hidden);
+  $('btnPanel').setAttribute('aria-expanded', String(!hidden));
+  $('btnPanel').textContent = hidden ? 'Show side panel' : 'Hide side panel';
+  $('latestTask').hidden = !hidden;
+  requestAnimationFrame(() => NET.game.scale.refresh());
+}
+
 async function boot(){
   bindSettings();
   await netJoin();   // net.js: two-player mode if served by server.py; otherwise returns quickly and stays single-player
@@ -16,16 +24,13 @@ async function boot(){
   $('btnRestart').onclick = () => {
     if('speechSynthesis' in window) speechSynthesis.cancel();
     send({t:'restart'});          // two-player: restart the partner's drill too
+    setPanelHidden(false);
     scene().scene.restart();
     $('game').focus();
   };
   // Show / hide the side panel. The map grows to fill the space; the task moves into the "Latest" bar.
   $('btnPanel').onclick = () => {
-    const hidden = $('main').classList.toggle('panel-hidden');
-    $('btnPanel').setAttribute('aria-expanded', String(!hidden));
-    $('btnPanel').textContent = hidden ? 'Show side panel' : 'Hide side panel';
-    $('latestTask').hidden = !hidden;
-    requestAnimationFrame(() => game.scale.refresh());
+    setPanelHidden(!$('main').classList.contains('panel-hidden'));
   };
 
   // Redraw the map when the computer switches between light and dark mode

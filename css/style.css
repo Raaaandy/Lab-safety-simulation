@@ -36,10 +36,14 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1rem;padding:.75
 #game{width:100%;aspect-ratio:1120/770;max-height:calc(100vh - 11rem);outline:none;border-radius:4px}
 #game:focus-visible{box-shadow:0 0 0 3px var(--blue)}
 aside{display:flex;flex-direction:column;gap:1rem;min-width:0}
-.sign{background:var(--green);color:#fff;border-radius:6px;padding:1rem 1.1rem;position:relative}
-.sign.urgent{background:var(--red)}
-.sign .step{font-size:.85rem;opacity:.9}
-.sign .task{font-size:1.2rem;font-weight:700;margin:.15rem 0 0}
+.sign{background:#fff;color:#000;border:3px solid #000;border-radius:6px;padding:1rem 1.1rem;position:relative}
+.sign.urgent{border-style:double;border-width:5px}
+.sign.urgent::before{content:"!";position:absolute;top:.55rem;right:.7rem;display:grid;place-items:center;
+  width:2.2rem;height:2.2rem;border:2px solid #000;border-radius:50%;background:#000;color:#fff;font-size:1.8rem;font-weight:900;line-height:1;
+  animation:urgentPulse 1s ease-in-out infinite alternate}
+.sign.urgent .step{padding-right:2.6rem}
+.sign .step{font-size:1.2rem;font-weight:700}
+.sign .task{font-size:.85rem;font-weight:700;margin:.15rem 0 0}
 .sign .timer{font-size:2rem;font-weight:700;margin-top:.3rem;font-variant-numeric:tabular-nums}
 .stats{display:flex;gap:.6rem;flex-wrap:wrap}
 .chip{border:2px solid var(--line);border-radius:999px;padding:.15rem .7rem;font-size:.9rem}
@@ -55,8 +59,12 @@ aside{display:flex;flex-direction:column;gap:1rem;min-width:0}
 #log{list-style:none;margin:0;padding:0;max-height:220px;overflow:auto;font-size:.92rem}
 #log li{padding:.3rem 0;border-top:1px solid color-mix(in srgb,var(--line) 18%,transparent)}
 #log li:first-child{border-top:0}
-#log li.bad{color:var(--red);font-weight:700}
-#log li.good{color:var(--green)}
+#log li.bad,#log li.good{color:#000;font-weight:700}
+#log li.good,#log li.bad{padding:.35rem .45rem;margin:.2rem 0;border:1px solid #000;border-radius:4px}
+#log li.good{background:color-mix(in srgb,var(--green) 18%,#fff)}
+#log li.bad{background:color-mix(in srgb,var(--red) 16%,#fff)}
+#log li.urgent{border-left:4px solid #000;padding-left:.45rem}
+.feedback-icon{display:inline-block;font-size:1.2em;font-weight:900;line-height:1;min-width:1.15em}
 .btns{display:flex;gap:.5rem;flex-wrap:wrap}
 button{font:inherit;font-weight:700;border:2px solid var(--ink);background:var(--surface);color:var(--ink);
   border-radius:6px;padding:.45rem .9rem;cursor:pointer;min-height:44px}
@@ -77,17 +85,32 @@ main.panel-hidden #game{max-height:calc(100vh - 14.5rem)}
 /* Latest event bar under the map */
 .latest{position:relative;background:var(--surface);border:2px solid color-mix(in srgb,var(--line) 25%,transparent);
   border-left:8px solid var(--blue);border-radius:6px;padding:.55rem .9rem .6rem}
-.latest.good{border-left-color:var(--green)}
-.latest.bad{border-left-color:var(--red);background:color-mix(in srgb,var(--red) 9%,var(--surface))}
+.latest.good,.latest.bad,.latest.urgent{color:#000;border-color:#000}
+.latest.good{background:color-mix(in srgb,var(--green) 18%,#fff)}
+.latest.bad{background:color-mix(in srgb,var(--red) 16%,#fff)}
+.latest.urgent{background:#fff}
+.latest.urgent{border-left-width:8px}
+.latest.urgent::before{content:"!";position:absolute;top:.55rem;right:.7rem;display:grid;place-items:center;
+  width:2.2rem;height:2.2rem;border:2px solid #000;border-radius:50%;background:#000;color:#fff;font-size:1.8rem;font-weight:900;line-height:1;
+  animation:urgentPulse 1s ease-in-out infinite alternate}
+.latest.urgent .latest-task,.latest.urgent .latest-msg{padding-right:3rem}
+.latest.good,.latest.bad{border-left-width:8px}
 .latest-label{font-size:.8rem;font-weight:700;color:var(--muted)}
 .latest-msg{margin:.1rem 0 0;font-size:1.15rem;font-weight:700;line-height:1.35}
-.latest.bad .latest-msg{color:var(--red)}
+.latest.good .latest-msg,.latest.bad .latest-msg{color:#000}
 .latest-task{font-size:.95rem;padding-bottom:.4rem;margin-bottom:.4rem;border-bottom:1px solid color-mix(in srgb,var(--line) 20%,transparent)}
 .latest-task .t-timer{font-weight:700;color:var(--red);margin-left:.4rem;font-variant-numeric:tabular-nums}
 .latest.flash{animation:latestFlash 1s ease-out}
 @keyframes latestFlash{
   0%{box-shadow:0 0 0 5px color-mix(in srgb,var(--yellow) 85%,transparent)}
   100%{box-shadow:0 0 0 0 transparent}
+}
+@keyframes urgentPulse{
+  from{transform:scale(1)}
+  to{transform:scale(1.2)}
+}
+@media (prefers-reduced-motion: reduce){
+  .sign.urgent::before,.latest.urgent::before{animation:none}
 }
 
 @media (max-width:860px){

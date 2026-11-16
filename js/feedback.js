@@ -7,18 +7,41 @@ let speak = true, guide = true, sound = true;
 let lastSpoken = '', heardGesture = false;
 
 function bindSettings(){
+  const checkboxes = [
+    $('optSpeak'), $('optGuide'), $('optSound')
+  ];
+  checkboxes.forEach(input => {
+    input.addEventListener('keydown', e => {
+      if(e.key !== 'Enter' && e.code !== 'Space') return;
+      e.stopPropagation();
+      e.preventDefault();
+      if(!e.repeat) input.click();
+    });
+  });
   $('optSpeak').onchange = e => speak = e.target.checked;
   $('optGuide').onchange = e => guide = e.target.checked;
   $('optSound').onchange = e => sound = e.target.checked;
 }
 
-// Main message path. cls is 'good', 'bad' or null (sets the colour). Each message goes to:
+// Main message path. cls is 'good', 'bad', 'urgent' or null. Each message goes to:
 //   the "Latest" bar under the map (briefly highlighted), the event log in the side panel,
 //   screen readers (via the hidden #sr region), and read-aloud speech.
+function appendEventMessage(container, msg, cls){
+  if(cls === 'good' || cls === 'bad'){
+    container.append(document.createTextNode('- '));
+    const icon = document.createElement('span');
+    icon.className = 'feedback-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = cls === 'good' ? '✓' : '✗';
+    container.append(icon, document.createTextNode(' '));
+  }
+  container.append(document.createTextNode(msg));
+}
+
 function log(msg, cls){
   const li = document.createElement('li');
-  li.textContent = msg;
-  if(cls) li.className = cls;
+  if(cls) li.classList.add(cls);
+  appendEventMessage(li, msg, cls);
   $('log').prepend(li);
   showLatest(msg, cls);
   announce(msg);
@@ -27,9 +50,11 @@ function log(msg, cls){
 
 function showLatest(msg, cls){
   const bar = $('latest');
-  $('latestMsg').textContent = msg;
-  bar.classList.remove('good', 'bad', 'flash');
+  const message = $('latestMsg');
+  message.replaceChildren();
+  bar.classList.remove('good', 'bad', 'urgent', 'flash');
   if(cls) bar.classList.add(cls);
+  appendEventMessage(message, msg, cls);
   void bar.offsetWidth;          // restart the highlight animation
   bar.classList.add('flash');
 }

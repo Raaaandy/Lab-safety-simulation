@@ -103,7 +103,7 @@ const NetMethods = {
     if(stepChanged){
       this.shownStep = sh.step;
       this.stepFx();
-      if(this.step) log(this.stepText(), this.step.urgent ? 'bad' : null);
+      if(this.step) log(this.stepText(), this.step.urgent ? 'urgent' : null);
     } else if(this.s.spill !== this.spillShown) this.drawSpill();
     this.spillShown = this.s.spill;
     if(sh.done && !this.endShown){ this.endShown = true; this.player.body.setVelocity(0); this.showEndScreen(sh.secs); }
@@ -147,7 +147,7 @@ const NetMethods = {
         if(!this.guest && NET.role === 2){ NET.staleRun = NET.lastRun; this.scene.restart(); return true; }
         if(!this.guest && (this.s.step > 0 || this.s.done)){ send({t:'restart'}); this.scene.restart(); return true; }
         log(`${pname(this.other)} connected. You are ${pname(this.me)}, the blue circle; your partner is the orange circle.`, 'good');
-        if(!this.guest && this.step) log(this.stepText(), this.step.urgent ? 'bad' : null);
+        if(!this.guest && this.step) log(this.stepText(), this.step.urgent ? 'urgent' : null);
       } else {
         log(`${pname(this.other)} disconnected. You can keep playing on your own.`);
         this.partnerLeft();

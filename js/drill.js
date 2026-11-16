@@ -35,7 +35,7 @@ const DrillMethods = {
     if(!st) return this.finish();
     this.s.timer = st.timer ? st.timer : null;
     this.s.timerFailed = false; this.s.warned = false;
-    log(this.stepText(), st.urgent ? 'bad' : null);   // the guest logs it from the host's snapshot
+    log(this.stepText(), st.urgent ? 'urgent' : null);   // the guest logs it from the host's snapshot
     this.refreshHUD();
   },
 

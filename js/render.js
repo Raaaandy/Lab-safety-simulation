@@ -105,6 +105,7 @@ const RenderMethods = {
   },
 
   showEndScreen(secs){
+    setPanelHidden(false);
     const v = this.s.violations, ink = css('--ink'), font = 'Atkinson Hyperlegible, sans-serif';
     $('timer').hidden = true; this.refreshHUD(); this.showTimer();
     this.add.rectangle(W/2, H/2, 520, 260, hex('--surface'), .96).setStrokeStyle(4, hex('--green')).setDepth(20);

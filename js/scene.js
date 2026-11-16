@@ -77,9 +77,13 @@ class Lab extends Phaser.Scene{
     // Keyboard
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,SHIFT,E,Q,SPACE');
     this.keys.E.on('down', () => this.act());
-    this.keys.SPACE.on('down', () => this.act());
+    this.keys.SPACE.on('down', event => {
+      if(document.activeElement.matches('input[type="checkbox"]')) return;
+      this.act();
+      event.preventDefault();
+    });
     this.keys.Q.on('down', () => this.describe());
-    this.input.keyboard.addCapture('UP,DOWN,LEFT,RIGHT,SPACE');
+    this.input.keyboard.addCapture('UP,DOWN,LEFT,RIGHT');
 
     // Touch / mouse: press and hold to walk toward that spot
     this.pointerTarget = null;
