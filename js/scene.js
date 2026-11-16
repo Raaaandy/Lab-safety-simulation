@@ -2,8 +2,6 @@
 // create() builds the room and the player; update() runs every frame.
 // The scene's other abilities come from render.js, drill.js, rules.js and awareness.js (added at the bottom).
 
-const START = {x:625, y:72};   // where the player starts, by the cubbies at the top-right entrance
-
 class Lab extends Phaser.Scene{
   constructor(){ super('lab'); }
 
@@ -37,7 +35,7 @@ class Lab extends Phaser.Scene{
     this.player.add([this.pBody, this.pNose, this.pCarry]);
     this.physics.add.existing(this.player);
     this.player.body.setCircle(11, -11, -11).setCollideWorldBounds(true);
-    this.physics.world.setBounds(8, 6, 758, 1110);
+    this.physics.world.setBounds(4, 4, W - 8, H - 8);
     this.physics.add.collider(this.player, this.solids);
 
     // "E" bubble and the red fire-alarm flash
@@ -59,7 +57,7 @@ class Lab extends Phaser.Scene{
     this.input.on('pointerup', () => this.pointerTarget = null);
 
     $('log').innerHTML = '';
-    log('You are at the top-right entrance of B035. Arrow keys or WASD to move, E to interact.');
+    log('You are at the entrance of B035, top left of the map, next to the cubbies. Arrow keys or WASD to move, E to interact.');
     this.enterStep();
     this.refreshHUD();
   }

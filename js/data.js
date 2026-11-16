@@ -1,9 +1,12 @@
 // data.js: the room and the drill script.
 // To change the room or the drill, you usually only need to edit this file.
 // Coordinates are pixels on the traced floor plan (BNS_035_Floor_Plan.pdf); 1 px is about 1.8 cm.
-// Rectangles are [x, y, width, height]; x grows to the right, y grows downward (north is up).
+// Rectangles are [x, y, width, height]; x grows to the right, y grows downward.
+// Everything below is in the ORIGINAL portrait orientation of the PDF. The bottom of this file
+// rotates it to landscape for the screen, so keep tracing new rooms the same way as the PDF.
 
-const W = 770, H = 1120, M_PER_PX = 0.018;
+// Size of the traced plan in its original (portrait) orientation
+const PLAN_W = 770, PLAN_H = 1120, M_PER_PX = 0.018;
 const WALLS = [
   [22,22,68,4],[155,22,440,4],[650,22,94,4],             // top (door gaps at 90–155, 595–650)
   [22,22,4,82],[22,102,68,4],[86,102,4,395],[22,495,68,4],[22,495,4,392],[22,885,77,4],[95,885,4,217], // left
@@ -11,8 +14,7 @@ const WALLS = [
   [740,22,4,118],[740,190,4,795]                           // right (door gaps 140–190, 985–1035)
 ];
 const EXITS = [
-  {name:'top-left door',x:122,y:14},{name:'top-right door',x:622,y:14},
-  {name:'east door (upper)',x:754,y:165},{name:'east door (lower)',x:754,y:1010},{name:'south door',x:645,y:1110}
+  {x:122,y:14},{x:622,y:14},{x:754,y:165},{x:754,y:1010},{x:645,y:1110}
 ];
 // kind controls colour + whether it is solid
 const OBJ = [
@@ -72,6 +74,43 @@ const STEPS = [
   {id:'return',text:'Return the bottle to the flammables cabinet.', target:['flam']},
   {id:'kit',   text:'Spill by the benches! Fetch the spill kit from the blue cabinet.', target:['blue'], urgent:true},
   {id:'clean', text:'Clean up the spill. Don’t walk through it.', target:['spill'], urgent:true},
-  {id:'eyewash',text:'A drop splashed into your eye. Reach the eyewash station below the centrifugal pump.', target:['eyewash'], urgent:true, timer:10},
+  {id:'eyewash',text:'A drop splashed into your eye. Reach the eyewash station just right of the centrifugal pump.', target:['eyewash'], urgent:true, timer:10},
   {id:'evac',  text:'Fire alarm. Leave by the nearest exit, don’t stop for belongings.', target:['exit'], urgent:true, timer:25},
 ];
+
+// Where the player starts: by the cubbies at the entrance (original orientation)
+const START = {x:625, y:72};
+
+// ---------- Rotate the plan to landscape ----------
+// The PDF is portrait (taller than wide). Screens are landscape, so the plan is turned
+// 90° counter-clockwise: the PDF's top edge becomes the left edge of the screen.
+// Set LANDSCAPE = false to show the plan exactly as in the PDF.
+const LANDSCAPE = true;
+const W = LANDSCAPE ? PLAN_H : PLAN_W;   // screen width of the map
+const H = LANDSCAPE ? PLAN_W : PLAN_H;   // screen height of the map
+
+if(LANDSCAPE){
+  const turnPoint = p => { const x = p.x; p.x = p.y; p.y = PLAN_W - x; };
+  const turnRect  = r => { const {x, y, w, h} = r; Object.assign(r, {x:y, y:PLAN_W - x - w, w:h, h:w}); };
+  WALLS.forEach(a => { const r = {x:a[0], y:a[1], w:a[2], h:a[3]}; turnRect(r); a.splice(0, 4, r.x, r.y, r.w, r.h); });
+  OBJ.forEach(turnRect);
+  turnRect(TROUGH);
+  UTILS.forEach(a => { const p = {x:a[0], y:a[1]}; turnPoint(p); a[0] = p.x; a[1] = p.y; });
+  [SPILL, START, ...EXITS].forEach(turnPoint);
+}
+
+// Name each exit by the screen edge it is on (top of the screen = north), e.g. "west door (upper)"
+EXITS.forEach(e => {
+  e.side = e.x < 40 ? 'west' : e.x > W - 40 ? 'east' : e.y < 40 ? 'north' : 'south';
+});
+EXITS.forEach(e => {
+  const same = EXITS.filter(o => o.side === e.side);
+  let part = '';
+  if(same.length > 1){
+    const vertical = e.side === 'west' || e.side === 'east';
+    const first = same.slice().sort((a,b) => vertical ? a.y - b.y : a.x - b.x)[0] === e;
+    part = vertical ? (first ? ' (upper)' : ' (lower)') : (first ? ' (left)' : ' (right)');
+  }
+  e.name = `${e.side} door${part}`;
+});
+

@@ -14,10 +14,21 @@
 <header>
   <h1>B035 Lab Safety Simulator</h1>
   <p>A walk-through of the chemical engineering lab, one hazard at a time.</p>
+  <button id="btnPanel" class="panel-toggle" type="button" aria-expanded="true" aria-controls="panel">Hide side panel</button>
 </header>
-<main>
-  <div id="game" tabindex="0" aria-label="Lab floor plan. Use arrow keys or WASD to move, E to interact, Q to describe your surroundings."></div>
-  <aside>
+<main id="main">
+  <div class="stage">
+    <div id="game" tabindex="0" aria-label="Lab floor plan. Use arrow keys or WASD to move, E to interact, Q to describe your surroundings."></div>
+    <!-- Latest event, always visible under the map. The task line only shows while the side panel is hidden. -->
+    <section class="latest" id="latest" aria-label="Latest event">
+      <div class="latest-task" id="latestTask" hidden></div>
+      <div class="latest-label">Latest</div>
+      <p class="latest-msg" id="latestMsg">Loading…</p>
+    </section>
+    <!-- Screen reader announcements. Kept outside the side panel so they still work when the panel is hidden. -->
+    <div id="sr" class="sr" role="log" aria-live="polite"></div>
+  </div>
+  <aside id="panel">
     <section class="sign" id="sign">
       <div class="step" id="stepNo">Step 1 of 8</div>
       <p class="task" id="task">Loading…</p>
@@ -39,8 +50,7 @@
     </section>
     <section class="box">
       <h2>Event log</h2>
-      <ul id="log" aria-live="polite"></ul>
-      <div id="sr" class="sr" role="status" aria-live="polite"></div>
+      <ul id="log"></ul>
     </section>
     <section class="box">
       <h2>Settings</h2>

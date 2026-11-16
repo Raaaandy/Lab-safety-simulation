@@ -72,19 +72,30 @@ const RenderMethods = {
     $('chipCarry').textContent = this.s.carry ? 'Carrying acetone' : (this.s.kit ? 'Carrying spill kit' : 'Hands empty');
     $('chipCarry').classList.toggle('on', this.s.carry || this.s.kit);
     $('chipScore').textContent = 'Score ' + this.s.score;
+    // Task line in the "Latest" bar (shown only while the side panel is hidden)
+    $('latestTask').innerHTML = '';
+    const strong = document.createElement('strong');
+    strong.textContent = st ? `Step ${this.s.step+1} of ${STEPS.length}: ` : 'Complete: ';
+    const span = document.createElement('span');
+    span.textContent = st ? `${st.text}  Score ${this.s.score}.` : `Drill finished. Score ${this.s.score}/100.`;
+    const t = document.createElement('span'); t.className = 't-timer'; t.id = 'latestTimer'; t.setAttribute('aria-hidden','true');
+    $('latestTask').append(strong, span, t);
     if(this.pCarry) this.pCarry.setVisible(this.s.carry || this.s.kit).setFillStyle(hex(this.s.carry ? '--red' : '--yellow'));
   },
 
   // Countdown shown on the task card (hidden from screen readers; they get a 5-second warning instead)
   showTimer(){
-    if(this.s.timer === null){ $('timer').hidden = true; return; }
+    const lt = $('latestTimer');
+    if(this.s.timer === null){ $('timer').hidden = true; if(lt) lt.textContent = ''; return; }
+    const text = Math.max(0, this.s.timer).toFixed(1) + ' s';
     $('timer').hidden = false;
-    $('timer').textContent = Math.max(0, this.s.timer).toFixed(1) + ' s';
+    $('timer').textContent = text;
+    if(lt) lt.textContent = text;
   },
 
   showEndScreen(secs){
     const v = this.s.violations, ink = css('--ink'), font = 'Atkinson Hyperlegible, sans-serif';
-    $('timer').hidden = true; this.refreshHUD();
+    $('timer').hidden = true; this.refreshHUD(); this.showTimer();
     this.add.rectangle(W/2, H/2, 520, 260, hex('--surface'), .96).setStrokeStyle(4, hex('--green')).setDepth(20);
     this.add.text(W/2, H/2-70, 'You made it out.', {fontFamily:font, fontSize:'34px', fontStyle:'bold', color:ink}).setOrigin(.5).setDepth(21);
     this.add.text(W/2, H/2+10, `Score ${this.s.score}/100 in ${secs} s\n${v.length} violation${v.length===1?'':'s'} — see the event log`,

@@ -31,8 +31,9 @@ header{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;padding:.9rem 1
   border-image:repeating-linear-gradient(-45deg,var(--yellow) 0 14px,#1C2630 14px 28px) 10;}
 h1{font-size:1.5rem;margin:0;letter-spacing:-.01em}
 header p{margin:0;color:var(--muted)}
-main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:1.25rem;padding:1rem 1.25rem;max-width:1200px;margin:0 auto}
-#game{height:calc(100vh - 8rem);min-height:520px;outline:none;border-radius:4px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1rem;padding:.75rem 1rem;max-width:1600px;margin:0 auto;align-items:start}
+/* the map is landscape (1120 x 770): fill the width, keep the shape, and never taller than the screen */
+#game{width:100%;aspect-ratio:1120/770;max-height:calc(100vh - 11rem);outline:none;border-radius:4px}
 #game:focus-visible{box-shadow:0 0 0 3px var(--blue)}
 aside{display:flex;flex-direction:column;gap:1rem;min-width:0}
 .sign{background:var(--green);color:#fff;border-radius:6px;padding:1rem 1.1rem;position:relative}
@@ -61,8 +62,31 @@ input[type=checkbox]{width:1.1rem;height:1.1rem;accent-color:var(--green)}
 kbd{font-family:inherit;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 .35rem;font-size:.85rem}
 .keys{margin:0;padding-left:1.1rem;font-size:.92rem}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* Side panel can be hidden; the map then uses the full width */
+main.panel-hidden{grid-template-columns:minmax(0,1fr)}
+main.panel-hidden aside{display:none}
+main.panel-hidden #game{max-height:calc(100vh - 14.5rem)}
+.panel-toggle{margin-left:auto}
+.stage{display:flex;flex-direction:column;gap:.6rem;min-width:0}
+
+/* Latest event bar under the map */
+.latest{position:relative;background:var(--surface);border:2px solid color-mix(in srgb,var(--line) 25%,transparent);
+  border-left:8px solid var(--blue);border-radius:6px;padding:.55rem .9rem .6rem}
+.latest.good{border-left-color:var(--green)}
+.latest.bad{border-left-color:var(--red);background:color-mix(in srgb,var(--red) 9%,var(--surface))}
+.latest-label{font-size:.8rem;font-weight:700;color:var(--muted)}
+.latest-msg{margin:.1rem 0 0;font-size:1.15rem;font-weight:700;line-height:1.35}
+.latest.bad .latest-msg{color:var(--red)}
+.latest-task{font-size:.95rem;padding-bottom:.4rem;margin-bottom:.4rem;border-bottom:1px solid color-mix(in srgb,var(--line) 20%,transparent)}
+.latest-task .t-timer{font-weight:700;color:var(--red);margin-left:.4rem;font-variant-numeric:tabular-nums}
+.latest.flash{animation:latestFlash 1s ease-out}
+@keyframes latestFlash{
+  0%{box-shadow:0 0 0 5px color-mix(in srgb,var(--yellow) 85%,transparent)}
+  100%{box-shadow:0 0 0 0 transparent}
+}
+
 @media (max-width:860px){
   main{grid-template-columns:1fr}
-  #game{height:70vh;min-height:420px}
+  #game{max-height:none}
 }
-@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} .latest.flash{animation:none} }

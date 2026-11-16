@@ -33,6 +33,11 @@ There are two versions:
 
 Holding Shift makes you run, but running in the lab costs points.
 
+## The screen
+
+- **Map** on the left, with the **Latest** bar underneath showing the most recent message. It flashes briefly when something new happens, turns red for urgent steps and violations, and green for successes.
+- **Side panel** on the right with the current task, timer, status, full event log, settings and controls. Click **Hide side panel** (top right) to give the map the full width; the current task, score and timer then appear in the Latest bar instead. Click **Show side panel** to bring it back.
+
 ## The drill
 
 Follow the task card on the right. There are 8 steps:
@@ -85,7 +90,7 @@ You start with 100 points and lose 10 for each of these (each counts once):
 ```
 index.html          page layout (side panel, buttons) and the list of scripts to load
 css/style.css       colours, light/dark mode, side-panel styling
-js/data.js          the room (walls, equipment, exits, spill) and the drill steps
+js/data.js          the room (walls, equipment, exits, spill), the drill steps, and the landscape rotation
 js/utils.js         small helpers: colours, distances, compass directions
 js/feedback.js      event log, screen reader announcements, read aloud, sounds
 js/render.js        drawing: map, spill, guide ring, side-panel status, end screen
@@ -105,14 +110,21 @@ The scripts are plain `<script>` tags rather than ES modules, so the game still 
 | I want to… | Edit |
 |---|---|
 | Change the room layout or an object's safety note | `js/data.js` (`WALLS`, `OBJ`, `EXITS`) |
+| Show the map portrait (as in the PDF) instead of landscape | `js/data.js` → set `LANDSCAPE = false` |
 | Change the wording or order of the drill | `js/data.js` (`STEPS`) |
 | Change what pressing E does at a step | `js/drill.js` → `act()` |
 | Add or change a safety rule | `js/rules.js` → `checkRules()` |
 | Change timers or the 5-second warning | `js/rules.js` → `updateTimer()` |
 | Change what screen readers hear or what is read aloud | `js/feedback.js` |
+| Change the Latest bar under the map | `showLatest()` in `js/feedback.js`; task line in `refreshHUD()` in `js/render.js`; styles in `css/style.css` |
+| Change the hide / show side panel button | `js/main.js` (`btnPanel`) and `css/style.css` (`.panel-hidden`) |
 | Change the Describe (Q) output or proximity announcements | `js/awareness.js` |
 | Change how the map or side panel looks | `js/render.js`, `css/style.css` |
 | Change movement speed or controls | `js/scene.js` → `movePlayer()`, `create()` |
+
+## Map orientation
+
+The coordinates in `js/data.js` are traced from the PDF in its original portrait orientation. At the bottom of `data.js`, the whole plan is rotated 90° counter-clockwise so it fits landscape screens: the PDF's top edge becomes the left edge of the screen. Keep tracing in the PDF's orientation; the rotation is applied automatically. Exit names ("west door (upper)") and the compass words in Describe (Q) refer to the screen, with north at the top.
 
 ## How it fits together
 
@@ -151,6 +163,7 @@ flowchart LR
 
 Two rules keep the game accessible:
 - **Never show information only on the canvas.** If the player needs to know it, send it through `log()` or `announce()` in `feedback.js`.
+- **Keep screen reader output outside the side panel.** The live region `#sr` sits under the map, so announcements still work when the panel is hidden.
 - **Keep content in the data.** Add new rooms or steps by editing `data.js`, not by hard-coding them into the logic.
 
 ## Development setup
@@ -201,8 +214,9 @@ Playing on two laptops needs a small server to pass messages between the browser
 1. Get the new room's floor plan (PDF or image).
 2. Ask an AI coding assistant to trace it into `WALLS`, `EXITS` and `OBJ` in `js/data.js`, using the same format and the original image size as the coordinate system.
 3. Update `STEPS` so the targets point to the new object `id`s.
-4. Change `M_PER_PX` to match the real room width, and `START` in `js/scene.js` to the new entrance.
-5. Walk the room in person to confirm where the safety equipment is. Floor plans usually do not show it.
+4. Change `M_PER_PX` to match the real room width, and `START` (also in `js/data.js`) to the new entrance.
+5. If the new plan is already landscape, set `LANDSCAPE = false` at the bottom of `js/data.js`.
+6. Walk the room in person to confirm where the safety equipment is. Floor plans usually do not show it.
 
 ## Publishing updates
 

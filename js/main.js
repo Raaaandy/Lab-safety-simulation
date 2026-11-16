@@ -17,6 +17,15 @@ function boot(){
     scene().scene.restart();
     $('game').focus();
   };
+  // Show / hide the side panel. The map grows to fill the space; the task moves into the "Latest" bar.
+  $('btnPanel').onclick = () => {
+    const hidden = $('main').classList.toggle('panel-hidden');
+    $('btnPanel').setAttribute('aria-expanded', String(!hidden));
+    $('btnPanel').textContent = hidden ? 'Show side panel' : 'Hide side panel';
+    $('latestTask').hidden = !hidden;
+    requestAnimationFrame(() => game.scale.refresh());
+  };
+
   // Redraw the map when the computer switches between light and dark mode
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     const s = scene(); if(s && s.mapG){ s.drawMap(); s.drawSpill(); }

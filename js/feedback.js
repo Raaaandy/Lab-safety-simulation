@@ -12,13 +12,26 @@ function bindSettings(){
   $('optSound').onchange = e => sound = e.target.checked;
 }
 
-// Main message path: event log + read aloud. cls is 'good', 'bad' or null (sets the colour).
+// Main message path. cls is 'good', 'bad' or null (sets the colour). Each message goes to:
+//   the "Latest" bar under the map (briefly highlighted), the event log in the side panel,
+//   screen readers (via the hidden #sr region), and read-aloud speech.
 function log(msg, cls){
   const li = document.createElement('li');
   li.textContent = msg;
   if(cls) li.className = cls;
   $('log').prepend(li);
+  showLatest(msg, cls);
+  announce(msg);
   speakText(msg);
+}
+
+function showLatest(msg, cls){
+  const bar = $('latest');
+  $('latestMsg').textContent = msg;
+  bar.classList.remove('good', 'bad', 'flash');
+  if(cls) bar.classList.add(cls);
+  void bar.offsetWidth;          // restart the highlight animation
+  bar.classList.add('flash');
 }
 
 // Short screen-reader-only cues that don't need a log entry (nearby object, timer warning)
