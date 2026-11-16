@@ -91,6 +91,7 @@ const RenderMethods = {
     $('latestTask').append(strong, span, t);
     if(this.pCarry) this.pCarry.setVisible(P.carry || P.kit).setFillStyle(hex(P.carry ? '--red' : '--yellow'));
     if(this.qCarry) this.qCarry.setVisible(Q.carry || Q.kit).setFillStyle(hex(Q.carry ? '--red' : '--yellow'));
+    this.updateHealthBar();
   },
 
   // Countdown shown on the task card (hidden from screen readers; they get a 5-second warning instead)
