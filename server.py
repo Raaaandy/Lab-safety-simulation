@@ -14,15 +14,18 @@ It serves the game files and passes messages between the two browsers (js/net.js
 A browser that has not synced for 5 seconds is dropped, freeing its role.
 Uses only the Python standard library: nothing to install.
 """
-import json, socket, sys, threading, time, uuid
+import json, os, socket, sys, threading, time, uuid
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from functools import partial
 from pathlib import Path
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+# Port: command line, else the PORT environment variable (set by hosts like Render), else 8000
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", 8000))
 ROOT = Path(__file__).resolve().parent
 TIMEOUT = 5.0  # seconds without a sync before a player is dropped and their role is freed
 PEER_STALE = 2.0  # a partner silent this long is not reported, so the other laptop notices quickly
+
+sys.stdout.reconfigure(line_buffering=True)  # show prints at once in hosted logs (e.g. Render)
 
 lock = threading.Lock()
 clients = {}  # id -> {"role", "pos", "share", "inbox", "seen"}

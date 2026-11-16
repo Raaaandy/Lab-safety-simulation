@@ -98,7 +98,7 @@ const OBJ = [
   {id:'bump',label:'Bumpout',x:26,y:499,w:16,h:261,kind:'col',note:'Wall bump-out.'},
   {id:'box',label:'Column',x:213,y:690,w:33,h:32,kind:'col',note:'Structural column.'},
   {id:'sink',label:'Sink',x:26,y:760,w:50,h:97,kind:'wash',note:'Sink. Wash your hands before leaving the lab.'},
-  {id:'eyewash',label:'Eyewash Station',x:316,y:566,w:48,h:42,kind:'wash',note:'Eyewash station. Flush eyes for at least 15 minutes after a splash.'},
+  {id:'eyewash',label:'Eye Wash + Safety Shower',x:681,y:806,w:54,h:118,kind:'wash',note:'Eye wash and safety shower. Flush eyes for at least 15 minutes after a splash.'},
   {id:'dvi',label:'DVI/3000',x:298,y:773,w:66,h:37,kind:'equip',note:'DVI/3000 unit.'},
   {id:'coldisp',label:'Column Display',x:311,y:811,w:54,h:101,kind:'equip',note:'Distillation column display.'},
   {id:'piping',label:'Piping',x:365,y:844,w:98,h:14,kind:'shelf',note:'Piping run. Mind your step.'},
@@ -131,7 +131,7 @@ const STEPS = [
   {id:'return',text:'Return the bottle to the flammables cabinet.', target:['flam']},
   {id:'kit',   text:'Spill by the benches! Fetch the spill kit from the blue cabinet.', target:['blue'], urgent:true},
   {id:'clean', text:'Clean up the spill. Don’t walk through it.', target:['spill'], urgent:true},
-  {id:'eyewash',text:'A drop splashed into your eye. Get to the eyewash station below the centrifugal pump!', target:['eyewash'], urgent:true, timer:10},
+  {id:'eyewash',text:'A drop splashed into your eye. Get to the eye wash and safety shower by the upper wall, just left of the door!', target:['eyewash'], urgent:true, timer:10},
   {id:'evac',  text:'Fire alarm! Leave the building and walk to the assembly point outside.', target:['assembly'], urgent:true, timer:35},
 ];
 const FONT = '"Pixelify Sans", ui-rounded, sans-serif';

@@ -38,7 +38,7 @@ const OBJ = [
   {id:'bump',label:'Bumpout',x:26,y:499,w:16,h:261,kind:'equip',note:'Wall bump-out.'},
   {id:'box',label:'',x:213,y:690,w:33,h:32,kind:'equip',note:'Structural column.'},
   {id:'sink',label:'Sink',x:26,y:760,w:50,h:97,kind:'wash',note:'Sink. Wash your hands before leaving the lab.'},
-  {id:'eyewash',label:'Eyewash',x:310,y:566,w:60,h:42,kind:'wash',pic: 'assets/eyewash_station.jpeg',note:'Eyewash station. Flush eyes for at least 15 minutes after a splash.'},
+  {id:'eyewash',label:'Eye Wash +\nSafety Shower',x:681,y:806,w:54,h:118,kind:'wash',pic:'assets/eyewash_station.jpeg',note:'Eye wash and safety shower. Flush eyes for at least 15 minutes after a splash.'},
   {id:'dvi',label:'DVI/3000',x:298,y:773,w:66,h:37,kind:'equip',note:'DVI/3000 unit.'},
   {id:'coldisp',label:'Column Display',x:311,y:811,w:54,h:101,kind:'equip',note:'Distillation column display.'},
   {id:'piping',label:'Piping',x:365,y:844,w:98,h:14,kind:'equip',note:'Overhead piping run. Mind your head and step.'},
@@ -82,7 +82,7 @@ const STEPS = [
                teamText:'Spill by the benches! One of you guards the spill to keep others away while the other fetches the spill kit from the blue cabinet.', target:['blue'], urgent:true},
   {id:'clean', text:'Clean up the spill. Don’t walk through it.',
                teamText:'Contain the spill together: both of you stand at the edge of the spill, then press E. Don’t walk through it.', target:['spill'], urgent:true},
-  {id:'eyewash',text:'A drop splashed into your eye. Reach the eyewash station just right of the centrifugal pump.', target:['eyewash'], urgent:true, timer:10},
+  {id:'eyewash',text:'A drop splashed into your eye. Reach the eye wash and safety shower by the upper wall, just left of the door.', target:['eyewash'], urgent:true, timer:10},
   {id:'evac',  text:'Fire alarm. Leave by the nearest exit, don’t stop for belongings.',
                teamText:'Fire alarm. Both of you leave by the nearest exit; don’t stop for belongings.', target:['exit'], urgent:true, timer:25},
 ];

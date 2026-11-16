@@ -21,7 +21,7 @@ const AwarenessMethods = {
     return !!pos && Math.hypot(pos.x-SPILL.x, pos.y-SPILL.y) < SPILL.r + extra;
   },
 
-    // Q key: the three nearest objects with distance and direction, the current target, and the partner
+  // Q key: the three nearest objects with distance and direction, the current target, and the partner
   describe(){
     const p = this.player;
     const sorted = OBJ.filter(o => o.label)
@@ -64,6 +64,6 @@ const AwarenessMethods = {
     $('near').textContent = target ? `${target.label} (press E)` : (o ? o.label : 'Nothing within reach.');
     const msg = target ? target.label + '. Press E.' : (o ? o.label : '');
     if(msg !== this.s.nearMsg){ this.s.nearMsg = msg; if(msg){ announce(msg); speakText(msg); } }
-    this.prompt.setVisible(!!target).setPosition(p.x, p.y-22).setText('E');
+    this.prompt.setVisible(!!target).setPosition(p.x, p.y - DOT_R - (NET.on ? 36 : 10)).setText('E');   // above the name tag in two-player mode
   },
 };
