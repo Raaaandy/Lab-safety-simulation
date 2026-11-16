@@ -96,6 +96,8 @@ main.panel-hidden #game{max-height:calc(100vh - 14.5rem)}
 }
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} .latest.flash{animation:none} }
 
+/* health bar in the HUD, showing the current safety score (0-100).
+green - above 60, yellow - between 30 and 60, red - below 30.  */
 .health {
   display: flex;
   align-items: center;
