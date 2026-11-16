@@ -21,12 +21,13 @@ const AwarenessMethods = {
     return !!pos && Math.hypot(pos.x-SPILL.x, pos.y-SPILL.y) < SPILL.r + extra;
   },
 
-  // Q key: the three nearest objects with distance and direction, the current target, and the partner
+    // Q key: the three nearest objects with distance and direction, the current target, and the partner
   describe(){
     const p = this.player;
-    const list = OBJ.filter(o => o.label)
+    const sorted = OBJ.filter(o => o.label)
       .map(o => ({o, d:distToRect(p.x, p.y, o)}))
-      .sort((a,b) => a.d - b.d).slice(0, 3)
+      .sort((a,b) => a.d - b.d);
+    const list = sorted.slice(0, 3)
       .map(({o,d}) => `${o.label}, ${(d*M_PER_PX).toFixed(1)} m ${compass(o.x+o.w/2-p.x, o.y+o.h/2-p.y)}`);
     const t = this.targetPoint();
     let extra = '';
@@ -34,10 +35,31 @@ const AwarenessMethods = {
     const q = this.team() && this.posOf(this.other);
     if(q){ const d = Math.hypot(q.x-p.x, q.y-p.y) * M_PER_PX; extra += ` Your partner is ${d.toFixed(1)} m ${compass(q.x-p.x, q.y-p.y)}.`; }
     say('Nearest: ' + list.join('; ') + '.' + extra, null, this.me);
+
+    if(this.s.spill && this.nearSpill(p, 30)) this.showPic(SPILL);
+    else this.showPic(sorted[0] && sorted[0].d <= 38 ? sorted[0].o : null);
+  },
+
+  showPic(o){
+    const box = $('objPicBox');
+    if(!box) return;
+    this.picObj = o && o.pic ? o : null;
+    box.hidden = !this.picObj;
+    if(!this.picObj) return;
+    $('objPic').src = o.pic;
+    $('objPic').alt = o.label + '. ' + (o.note || '');
+    $('objPicCap').textContent = o.label;
   },
 
   // Every frame: update the "Nearby" box and the E bubble, and announce changes once
   updateProximity(){
+    if(this.picObj){
+      const pl = this.player;
+      const away = this.picObj === SPILL
+        ? !(this.s.spill && this.nearSpill(pl, 30))
+        : distToRect(pl.x, pl.y, this.picObj) > 38;
+      if(away) this.showPic(null);
+    }
     const p = this.player, target = this.actionTarget(), o = this.nearest();
     $('near').textContent = target ? `${target.label} (press E)` : (o ? o.label : 'Nothing within reach.');
     const msg = target ? target.label + '. Press E.' : (o ? o.label : '');
