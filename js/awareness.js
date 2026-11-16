@@ -42,6 +42,6 @@ const AwarenessMethods = {
     $('near').textContent = target ? `${target.label} (press E)` : (o ? o.label : 'Nothing within reach.');
     const msg = target ? target.label + '. Press E.' : (o ? o.label : '');
     if(msg !== this.s.nearMsg){ this.s.nearMsg = msg; if(msg){ announce(msg); speakText(msg); } }
-    this.prompt.setVisible(!!target).setPosition(p.x, p.y-22).setText('E');
+    this.prompt.setVisible(!!target).setPosition(p.x, p.y - DOT_R - (NET.on ? 36 : 10)).setText('E');   // above the name tag in two-player mode
   },
 };

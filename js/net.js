@@ -137,7 +137,7 @@ const NetMethods = {
       this.partner.x += (q.x - this.partner.x) * .35;
       this.partner.y += (q.y - this.partner.y) * .35;
       this.partner.rotation = q.r || 0;
-      this.qTag.setPosition(this.partner.x, this.partner.y - 16);
+      this.qTag.setPosition(this.partner.x, this.partner.y - DOT_R - 12);
     }
 
     if(online !== this._online){

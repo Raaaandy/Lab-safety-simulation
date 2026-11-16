@@ -2,6 +2,9 @@
 // create() builds the room and the player(s); update() runs every frame.
 // The scene's other abilities come from render.js, drill.js, rules.js, awareness.js and net.js (added at the bottom).
 
+// Radius of the player and partner dots on the map, in pixels
+const DOT_R = 16;
+
 class Lab extends Phaser.Scene{
   constructor(){ super('lab'); }
 
@@ -47,22 +50,22 @@ class Lab extends Phaser.Scene{
     // The partner (two-player only): an orange circle, drawn only. Its position comes from the network.
     const q0 = STARTS[this.other];
     this.partner = this.add.container(q0.x, q0.y).setVisible(false);
-    this.qBody  = this.add.circle(0, 0, 11, hex('--partner')).setStrokeStyle(3, hex('--paper'));
-    this.qNose  = this.add.triangle(0, -15, -5, 4, 5, 4, 0, -4, hex('--partner'));
-    this.qCarry = this.add.rectangle(10, 8, 8, 10, hex('--red')).setVisible(false);
+    this.qBody  = this.add.circle(0, 0, DOT_R, hex('--partner')).setStrokeStyle(3, hex('--paper'));
+    this.qNose  = this.add.triangle(0, -DOT_R-6, -7, 5, 7, 5, 0, -5, hex('--partner'));
+    this.qCarry = this.add.rectangle(DOT_R-1, DOT_R-4, 10, 13, hex('--red')).setVisible(false);
     this.partner.add([this.qBody, this.qNose, this.qCarry]);
     this.qTag = tag('P' + this.other, '#9A4A05').setVisible(false);   // name tags are separate so they don't rotate
 
     // The player: a blue circle with a direction marker and a carried-item square
     const p0 = STARTS[this.me];
     this.player = this.add.container(p0.x, p0.y);
-    this.pBody  = this.add.circle(0, 0, 11, hex('--blue')).setStrokeStyle(3, hex('--paper'));
-    this.pNose  = this.add.triangle(0, -15, -5, 4, 5, 4, 0, -4, hex('--blue'));
-    this.pCarry = this.add.rectangle(10, 8, 8, 10, hex('--red')).setVisible(false);
+    this.pBody  = this.add.circle(0, 0, DOT_R, hex('--blue')).setStrokeStyle(3, hex('--paper'));
+    this.pNose  = this.add.triangle(0, -DOT_R-6, -7, 5, 7, 5, 0, -5, hex('--blue'));
+    this.pCarry = this.add.rectangle(DOT_R-1, DOT_R-4, 10, 13, hex('--red')).setVisible(false);
     this.player.add([this.pBody, this.pNose, this.pCarry]);
     this.pTag = tag('P' + this.me + ' (you)', '#1F5FA8').setVisible(NET.on);
     this.physics.add.existing(this.player);
-    this.player.body.setCircle(11, -11, -11).setCollideWorldBounds(true);
+    this.player.body.setCircle(12, -12, -12).setCollideWorldBounds(true);   // collision a bit smaller than the dot, so doorways stay easy
     this.physics.world.setBounds(4, 4, W - 8, H - 8);
     this.physics.add.collider(this.player, this.solids);
 
@@ -98,7 +101,7 @@ class Lab extends Phaser.Scene{
 
   update(time, delta){
     if(this.updateNet()) return;    // net.js: partner, messages, host snapshot (does nothing in single-player)
-    this.pTag.setPosition(this.player.x, this.player.y - 16);
+    this.pTag.setPosition(this.player.x, this.player.y - DOT_R - 12);
     if(this.s.done) return;
     const dt = delta / 1000;
     const running = this.movePlayer();
