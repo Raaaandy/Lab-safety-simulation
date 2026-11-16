@@ -85,7 +85,6 @@ const RuleMethods = {
     }
     return false;
   },
-  
   // Update the health bar in the HUD to reflect the current score (0-100)
   updateHealthBar(){
     const pct = Math.max(0, Math.min(100, this.s.score));   // 100-point max
