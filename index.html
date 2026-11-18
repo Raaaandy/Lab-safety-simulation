@@ -15,9 +15,21 @@
 <header>
   <h1>B035 Lab Safety Simulator</h1>
   <p>A walk-through of the chemical engineering lab, one hazard at a time.</p>
-  <button id="btnPanel" class="panel-toggle" type="button" aria-expanded="true" aria-controls="panel">Hide side panel</button>
+  <button id="btnPanel" class="panel-toggle" type="button" aria-expanded="true" aria-controls="panel" hidden>Hide side panel</button>
 </header>
-<main id="main">
+<section id="lobby" class="lobby" hidden aria-labelledby="lobbyTitle">
+  <h2 id="lobbyTitle">Play with a partner</h2>
+  <p>Create a room and share its code, or enter a code from your partner.</p>
+  <button id="btnCreateRoom" type="button">Create room</button>
+  <form id="joinRoomForm">
+    <label for="roomCode">Room code</label>
+    <input id="roomCode" name="roomCode" type="text" minlength="6" maxlength="6" pattern="[A-Za-z0-9]{6}"
+      autocomplete="off" autocapitalize="characters" spellcheck="false" required>
+    <button id="btnJoinRoom" type="submit">Join room</button>
+  </form>
+  <p id="lobbyStatus" role="status" aria-live="polite"></p>
+</section>
+<main id="main" hidden>
   <div class="stage">
     <div id="game" tabindex="0" aria-label="Lab floor plan. Use arrow keys or WASD to move, E to interact, Q to describe your surroundings."></div>
     <!-- Latest event, always visible under the map. The task line only shows while the side panel is hidden. -->
@@ -93,7 +105,7 @@
 <script src="js/drill.js"></script>      <!-- what each step does, the E key -->
 <script src="js/rules.js"></script>      <!-- safety rules, timers, evacuation -->
 <script src="js/awareness.js"></script>  <!-- nearby objects, Describe (Q) -->
-<script src="js/net.js"></script>        <!-- optional two-player mode over server.py (see TWO-PLAYER.md) -->
+<script src="js/net.js"></script>        <!-- optional room-based two-player mode over server.py (see TWO-PLAYER.md) -->
 <script src="js/scene.js"></script>      <!-- the Phaser scene that ties it together -->
 <script src="js/main.js"></script>       <!-- starts the game, connects buttons -->
 </body>

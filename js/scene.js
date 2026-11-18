@@ -94,7 +94,6 @@ class Lab extends Phaser.Scene{
     $('log').innerHTML = '';
     if(!NET.on){
       log('You are at the entrance of B035, top left of the map, next to the cubbies. Arrow keys or WASD to move, E to interact.');
-      if(NET.full) log('Two players are already connected, so you are playing on your own.');
     } else {
       log(`Two-player mode. You are ${pname(this.me)}, the blue circle, at the entrance next to the cubbies, top left of the map. ` +
           (peerOnline() ? 'Your partner is the orange circle.' : 'Waiting for your partner to join; you can start on your own.'));

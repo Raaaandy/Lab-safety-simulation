@@ -24,7 +24,7 @@ There are two versions:
 
 ## Playing with a partner
 
-Two people can play together on two laptops on the same Wi-Fi: one runs `server.py`, and both open the game from it. Some steps then need both of you, such as containing the spill from both sides and both getting out during the fire alarm. The team shares one score. See [TWO-PLAYER.md](TWO-PLAYER.md) for how to set it up.
+Two people can play together on two laptops on the same Wi-Fi: one runs `server.py`, and both open the game from it. The first player creates a room and shares its six-character code for the other player to join. Some steps then need both of you, such as containing the spill from both sides and both getting out during the fire alarm. The team shares one score. See [TWO-PLAYER.md](TWO-PLAYER.md) for how to set it up.
 
 The online version and a double-clicked `index.html` are always single-player.
 

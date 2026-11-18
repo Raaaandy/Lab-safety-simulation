@@ -23,13 +23,15 @@ Nothing else needs to be installed.
    This laptop:   http://localhost:8000
    Other laptop:  http://192.168.1.23:8000
    ```
-2. **On the host laptop**, open the first address (`http://localhost:8000`) in Chrome, Edge or Firefox. You are **Player 1**.
-3. **On the other laptop**, type the second address (`http://192.168.1.23:8000` in this example) into the browser. You are **Player 2**.
-4. Play. When you're done, press **Ctrl+C** in the terminal to stop the server.
+2. Both players open the address for their laptop in Chrome, Edge or Firefox.
+3. The first player clicks **Create room** and shares the 6-character room code.
+4. The second player enters that code and clicks **Join room**.
+5. Play. When you're done, press **Ctrl+C** in the terminal to stop the server.
 
 On each laptop, **you** are the blue circle tagged "P1 (you)" or "P2 (you)", and your **partner** is the orange circle tagged "P1" or "P2". The side panel shows "You: Player 1. Partner: connected" (or "not connected").
 
 - **Restart** on either laptop restarts the drill for both players.
+- Each room accepts up to two players. Create a different room for another pair.
 - If your partner joins after you've started, the drill starts again for both of you.
 - If your partner leaves or loses connection, you keep playing on your own from where you were.
 
@@ -60,11 +62,12 @@ The co-op steps have no extra timers; only the eyewash and evacuation are timed,
   - Campus and public Wi-Fi often block laptops from connecting to each other. If so, turn on a **phone's personal hotspot**, connect **both laptops** to it, and start `server.py` again (the address changes).
 - **"Address already in use".** Another program is using port 8000. Run `python3 server.py 8080` and use port 8080 in both addresses.
 - **"python3 is not recognized".** On Windows, use `python server.py`, or reinstall Python with "Add Python to PATH" ticked.
-- **A third browser opens the page.** It plays single-player; only two players can join at once.
+- **The room is full.** Each room supports two players; create a different room for another pair.
+- **The room code is not found.** Check that it has six characters and that the room creator is still connected.
 - **The partner shows "not connected" after a laptop slept.** Reload the page on that laptop.
 
 ## How it works (for developers)
 
-`server.py` uses only the Python standard library. It serves the game files and relays messages: the first browser to call `POST /api/join` becomes Player 1 (host), the second Player 2 (guest). About 10 times a second each browser calls `POST /api/sync` with its position; the reply contains the partner's position, the host's drill snapshot and any queued messages. A browser that stops syncing for 5 seconds is dropped.
+`server.py` uses only the Python standard library. It serves the game files and relays messages. `POST /api/rooms/create` creates a six-character room code and assigns Player 1; `POST /api/rooms/join` assigns Player 2 to an existing room. Each browser calls `POST /api/sync` about 10 times a second with its position; replies include only that room's partner, drill snapshot and queued messages. A browser that stops syncing for 5 seconds is dropped.
 
 The host runs all of the drill logic (steps, rules, timers, score) for both players. The guest moves its own circle and sends its position, its E presses and its own running violations; it draws the drill from the host's snapshot. The client side is in `js/net.js`; see the README for where the rest lives.

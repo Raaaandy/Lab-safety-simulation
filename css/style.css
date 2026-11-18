@@ -23,6 +23,7 @@
   color-scheme: dark;
 }
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
 html,body{margin:0;height:100%}
 body{background:var(--paper);color:var(--ink);
   font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.45}
@@ -31,6 +32,15 @@ header{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;padding:.9rem 1
   border-image:repeating-linear-gradient(-45deg,var(--yellow) 0 14px,#1C2630 14px 28px) 10;}
 h1{font-size:1.5rem;margin:0;letter-spacing:-.01em}
 header p{margin:0;color:var(--muted)}
+.lobby{max-width:34rem;margin:2rem auto;padding:1.25rem;background:var(--surface);
+  border:1px solid color-mix(in srgb,var(--line) 30%,transparent);border-radius:8px}
+.lobby h2{margin:0 0 .35rem}
+.lobby p{margin:.35rem 0 1rem}
+.lobby form{display:flex;align-items:end;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+.lobby form label{display:block;width:100%;font-weight:700}
+.lobby input{font:inherit;text-transform:uppercase;letter-spacing:.08em;width:9rem;min-height:44px;
+  padding:.4rem .65rem;border:2px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+#lobbyStatus{min-height:1.5em;margin:.8rem 0 0;font-weight:700}
 main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1rem;padding:.75rem 1rem;max-width:1600px;margin:0 auto;align-items:start}
 /* the map is landscape (1120 x 770): fill the width, keep the shape, and never taller than the screen */
 #game{width:100%;aspect-ratio:1120/770;max-height:calc(100vh - 11rem);outline:none;border-radius:4px}

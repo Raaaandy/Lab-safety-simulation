@@ -76,7 +76,7 @@ const RenderMethods = {
     $('chipCarry').classList.toggle('on', P.carry || P.kit);
     $('chipScore').textContent = scoreWord + ' ' + this.s.score;
     // Two-player status (hidden in single-player)
-    const partner = `You: ${pname(this.me)}. Partner: ${this.team() ? 'connected' : 'not connected'}.`;
+    const partner = `Room ${NET.room}. You: ${pname(this.me)}. Partner: ${this.team() ? 'connected' : 'not connected'}.`;
     $('chipRole').hidden = !NET.on;
     $('chipRole').textContent = partner;
     $('chipRole').classList.toggle('on', this.team());

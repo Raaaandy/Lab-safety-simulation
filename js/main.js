@@ -8,9 +8,11 @@ function setPanelHidden(hidden){
   requestAnimationFrame(() => NET.game.scale.refresh());
 }
 
-async function boot(){
+function startGame(){
+  $('lobby').hidden = true;
+  $('main').hidden = false;
+  $('btnPanel').hidden = false;
   bindSettings();
-  await netJoin();   // net.js: two-player mode if served by server.py; otherwise returns quickly and stays single-player
   const game = NET.game = new Phaser.Game({
     type: Phaser.AUTO, parent: 'game', width: W, height: H, backgroundColor: css('--paper'),
     physics: {default:'arcade', arcade:{debug:false}},
@@ -38,6 +40,35 @@ async function boot(){
     const s = scene(); if(s && s.mapG){ s.drawMap(); s.drawSpill(); }
   });
   $('game').focus();
+}
+
+async function boot(){
+  if(await netAvailable()){
+    $('lobby').hidden = false;
+    $('btnCreateRoom').onclick = () => enterSelectedRoom('create');
+    $('joinRoomForm').onsubmit = event => {
+      event.preventDefault();
+      enterSelectedRoom('join', $('roomCode').value.trim().toUpperCase());
+    };
+    return;
+  }
+  startGame();
+}
+
+async function enterSelectedRoom(action, room=''){
+  const status = $('lobbyStatus');
+  $('btnCreateRoom').disabled = true;
+  $('btnJoinRoom').disabled = true;
+  status.textContent = action === 'create' ? 'Creating room…' : 'Joining room…';
+  try{
+    const result = await enterRoom(action, room);
+    status.textContent = `Room ${result.room} ready. You are Player ${result.role}.`;
+    startGame();
+  }catch(error){
+    status.textContent = error.message;
+    $('btnCreateRoom').disabled = false;
+    $('btnJoinRoom').disabled = false;
+  }
 }
 
 // Wait for the font so map labels use it
