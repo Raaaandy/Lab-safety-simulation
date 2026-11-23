@@ -119,6 +119,7 @@ class Lab extends Phaser.Scene{
     this.warnTimer();               // rules.js
     this.showTimer();               // render.js
     this.updateProximity();         // awareness.js
+    this.updateNavigator();         // render.js
     this.drawTargetRing(time);      // render.js
   }
 
@@ -148,6 +149,7 @@ class Lab extends Phaser.Scene{
     } else {
       camera.startFollow(this.player, false, 1, 1);
     }
+    this.updateEndScreenScale();
     $('btnZoomReset').textContent = `${Math.round(nextZoom * 100)}%`;
   }
 }

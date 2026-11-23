@@ -68,7 +68,30 @@ const RenderMethods = {
     if(!guide) return;
     const t = this.targetPoint(); if(!t) return;
     const pulse = 4*Math.sin(time/220);
-    this.ring.lineStyle(3, hex(this.step.urgent ? '--red' : '--green'), .9).strokeCircle(t.x, t.y, t.r+pulse);
+    const color = hex(this.step.urgent ? '--red' : '--green');
+    this.ring.lineStyle(5, hex('--paper'), 1).strokeCircle(t.x, t.y, t.r+8+pulse);
+    this.ring.lineStyle(3, color, 1).strokeCircle(t.x, t.y, t.r+8+pulse);
+  },
+
+  updateNavigator(){
+    const target = this.targetPoint();
+    const arrow = $('navigatorArrow'), destination = $('navigatorDestination');
+    if(!target){
+      if(this.navigatorValue === 'No active destination') return;
+      this.navigatorValue = 'No active destination';
+      arrow.textContent = '•';
+      destination.textContent = 'No active destination';
+      return;
+    }
+    const dx = target.x-this.player.x, dy = target.y-this.player.y;
+    const direction = compass(dx, dy);
+    const arrows = {'north':'↑','north-east':'↗','east':'→','south-east':'↘',
+      'south':'↓','south-west':'↙','west':'←','north-west':'↖'};
+    const text = `${target.label} · ${(Math.hypot(dx,dy)*M_PER_PX).toFixed(1)} m ${direction}`;
+    if(text === this.navigatorValue) return;
+    this.navigatorValue = text;
+    arrow.textContent = arrows[direction];
+    destination.textContent = text;
   },
 
   // Side panel: task card, PPE / carrying / score / two-player chips
@@ -116,10 +139,23 @@ const RenderMethods = {
     setPanelHidden(false);
     const v = this.s.violations, ink = css('--ink'), font = 'Atkinson Hyperlegible, sans-serif';
     $('timer').hidden = true; this.refreshHUD(); this.showTimer();
-    this.add.rectangle(W/2, H/2, 520, 260, hex('--surface'), .96).setStrokeStyle(4, hex('--green')).setDepth(20);
-    this.add.text(W/2, H/2-70, this.team() ? 'You both made it out.' : 'You made it out.', {fontFamily:font, fontSize:'34px', fontStyle:'bold', color:ink}).setOrigin(.5).setDepth(21);
-    this.add.text(W/2, H/2+10, `${this.team() ? 'Team score' : 'Score'} ${this.s.score}/100 in ${secs} s\n${v.length} violation${v.length===1?'':'s'} — see the event log`,
-      {fontFamily:font, fontSize:'20px', color:ink, align:'center'}).setOrigin(.5).setDepth(21);
-    this.add.text(W/2, H/2+80, 'Press Restart to try again', {fontFamily:font, fontSize:'16px', color:css('--muted')}).setOrigin(.5).setDepth(21);
+    this.endScreenObjects = [
+      {object:this.add.rectangle(W/2, H/2, 520, 260, hex('--surface'), .96).setStrokeStyle(4, hex('--green')).setDepth(20), y:0},
+      {object:this.add.text(W/2, H/2-70, this.team() ? 'You both made it out.' : 'You made it out.',
+        {fontFamily:font, fontSize:'34px', fontStyle:'bold', color:ink}).setOrigin(.5).setDepth(21), y:-70},
+      {object:this.add.text(W/2, H/2+10, `${this.team() ? 'Team score' : 'Score'} ${this.s.score}/100 in ${secs} s\n${v.length} violation${v.length===1?'':'s'} — see the event log`,
+        {fontFamily:font, fontSize:'20px', color:ink, align:'center'}).setOrigin(.5).setDepth(21), y:10},
+      {object:this.add.text(W/2, H/2+80, 'Press Restart to try again',
+        {fontFamily:font, fontSize:'16px', color:css('--muted')}).setOrigin(.5).setDepth(21), y:80},
+    ];
+    this.updateEndScreenScale();
+  },
+
+  updateEndScreenScale(){
+    if(!this.endScreenObjects) return;
+    const zoom = this.cameras.main.zoom;
+    this.endScreenObjects.forEach(({object,y}) => {
+      object.setScrollFactor(0).setPosition(W/2, H/2+y/zoom).setScale(1/zoom);
+    });
   },
 };

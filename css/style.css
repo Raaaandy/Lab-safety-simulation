@@ -94,6 +94,11 @@ main.panel-hidden #game{max-height:calc(100vh - 14.5rem)}
 .map-zoom{display:flex;justify-content:flex-end;gap:.35rem}
 .map-zoom button{min-width:44px;min-height:44px;padding:.25rem .55rem}
 #btnZoomReset{min-width:68px;font-size:.85rem}
+.navigator{display:flex;align-items:center;gap:.65rem;min-height:48px;padding:.4rem .8rem;
+  background:var(--surface);border:2px solid color-mix(in srgb,var(--line) 30%,transparent);border-radius:6px}
+.navigator-arrow{display:grid;place-items:center;flex:none;width:2rem;height:2rem;border:2px solid var(--red);
+  border-radius:50%;color:var(--red);font-size:1.55rem;font-weight:900;line-height:1}
+#navigatorDestination{min-width:0;font-weight:700;overflow-wrap:anywhere}
 
 /* Latest event bar under the map */
 .latest{position:relative;background:var(--surface);border:2px solid color-mix(in srgb,var(--line) 25%,transparent);
