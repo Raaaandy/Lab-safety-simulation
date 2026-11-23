@@ -104,7 +104,7 @@ For the Simple view, use [`css/style.css`](./css/style.css). Search for a recogn
 
 ### Change map zoom
 
-The `+` and `−` buttons are in `index.html`; their click actions are connected in `js/main.js`. The camera zoom and player-follow behavior are in `setMapZoom()` in `js/scene.js`. The current range is 100% to 300%, in 50% steps. The percentage button resets the map to its original full view.
+The `+` and `−` buttons are in `index.html`, just below the map so they do not cover the floor plan; their click actions are connected in `js/main.js`. The camera zoom and player-follow behavior are in `setMapZoom()` in `js/scene.js`. The current range is 100% to 300%, in 50% steps. The percentage button resets the map to its original full view.
 
 ## How the files fit together
 
