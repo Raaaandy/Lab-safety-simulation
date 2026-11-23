@@ -32,6 +32,11 @@
 <main id="main" hidden>
   <div class="stage">
     <div id="game" tabindex="0" aria-label="Lab floor plan. Use arrow keys or WASD to move, E to interact, Q to describe your surroundings."></div>
+    <div class="map-zoom" role="group" aria-label="Map zoom controls">
+      <button id="btnZoomOut" type="button" aria-label="Zoom out" title="Zoom out">−</button>
+      <button id="btnZoomReset" type="button" aria-label="Reset map zoom" title="Reset map zoom">100%</button>
+      <button id="btnZoomIn" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+    </div>
     <!-- Latest event, always visible under the map. The task line only shows while the side panel is hidden. -->
      <div class="health" role="progressbar" aria-label="Safety score"
        aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
@@ -92,6 +97,7 @@
         <li><kbd>E</kbd> interact or read an object’s safety note</li>
         <li><kbd>Q</kbd> describe the three nearest objects</li>
         <li>Touch: press and hold on the plan to walk toward that spot</li>
+        <li>Use the map controls to zoom in around your player or reset the view</li>
       </ul>
     </section>
   </aside>

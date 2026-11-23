@@ -23,6 +23,9 @@ function startGame(){
 
   $('btnAct').onclick  = () => scene().act();
   $('btnDesc').onclick = () => scene().describe();
+  $('btnZoomIn').onclick = () => scene().setMapZoom(scene().cameras.main.zoom + .5);
+  $('btnZoomOut').onclick = () => scene().setMapZoom(scene().cameras.main.zoom - .5);
+  $('btnZoomReset').onclick = () => scene().setMapZoom(1);
   $('btnRestart').onclick = () => {
     if('speechSynthesis' in window) speechSynthesis.cancel();
     send({t:'restart'});          // two-player: restart the partner's drill too

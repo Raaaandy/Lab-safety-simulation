@@ -1,6 +1,6 @@
 # B035 Lab Safety Simulator — User / Non-CSE Handoff
 
-This is the plain-language guide for users and maintainers without a computer science background. It explains what the main files do, where common content changes belong, and how to check your work. For function-level technical notes, see [HANDOFF-CSE.md](./HANDOFF-CSE.md).
+This is the plain-language guide for users and maintainers without a computer science background. It explains what the main files do, where common content changes belong, and how to check your work. For function-level technical notes, see [HANDOFF-PROGRAM.md](./HANDOFF-PROGRAM.md).
 
 ## What this project is
 
@@ -52,6 +52,7 @@ Open `pixel.html` in a browser. It is separate from the room-based multiplayer f
 | Text announcements, event log, or read-aloud behavior | [`js/feedback.js`](./js/feedback.js) |
 | How the map or status panel is drawn | [`js/render.js`](./js/render.js) |
 | Colors, spacing, fonts, or layout | [`css/style.css`](./css/style.css) |
+| Map zoom controls and camera behavior | Buttons in [`index.html`](./index.html), button actions in [`js/main.js`](./js/main.js), and `setMapZoom()` in [`js/scene.js`](./js/scene.js) |
 | Page structure, buttons, or which scripts load | [`index.html`](./index.html) |
 | Create/join room interface or game startup | [`js/main.js`](./js/main.js) |
 | Room codes, player connections, and syncing between players | [`js/net.js`](./js/net.js) and [`server.py`](./server.py) |
@@ -100,6 +101,10 @@ If you want to keep the same picture filename, replace the file in `assets/` wit
 ### Change a color or text appearance
 
 For the Simple view, use [`css/style.css`](./css/style.css). Search for a recognizable class or label, such as `.latest`, `.sign`, `.health-fill`, or `button`. Prefer changing an existing rule over adding a second competing rule elsewhere.
+
+### Change map zoom
+
+The `+` and `−` buttons are in `index.html`; their click actions are connected in `js/main.js`. The camera zoom and player-follow behavior are in `setMapZoom()` in `js/scene.js`. The current range is 100% to 300%, in 50% steps. The percentage button resets the map to its original full view.
 
 ## How the files fit together
 

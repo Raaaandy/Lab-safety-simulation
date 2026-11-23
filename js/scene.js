@@ -137,6 +137,19 @@ class Lab extends Phaser.Scene{
     else p.body.setVelocity(0);
     return running;
   }
+
+  setMapZoom(zoom){
+    const camera = this.cameras.main;
+    const nextZoom = Math.max(1, Math.min(3, zoom));
+    camera.setZoom(nextZoom);
+    if(nextZoom === 1){
+      camera.stopFollow();
+      camera.setScroll(0, 0);
+    } else {
+      camera.startFollow(this.player, false, 1, 1);
+    }
+    $('btnZoomReset').textContent = `${Math.round(nextZoom * 100)}%`;
+  }
 }
 
 // Give the scene the methods defined in the other files

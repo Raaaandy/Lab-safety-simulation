@@ -39,6 +39,8 @@ The `*Methods` objects are mixed into `Lab.prototype` at the bottom of `scene.js
 | `startGame()` | `js/main.js` | Creates the Phaser game, binds Interact/Describe/Restart/panel buttons, and focuses the map. |
 | `setPanelHidden(hidden)` | `js/main.js` | Shows/hides the side panel and moves the task line into/out of Latest. |
 
+`startGame()` also wires the map zoom buttons to `Lab.setMapZoom()` using the current Phaser camera zoom.
+
 ### Scene and movement
 
 | Function | File | Responsibility |
@@ -46,6 +48,7 @@ The `*Methods` objects are mixed into `Lab.prototype` at the bottom of `scene.js
 | `Lab.create()` | `js/scene.js` | Initializes local game state, player sprites, collisions, keyboard input, and the first drill step. |
 | `Lab.update(time, delta)` | `js/scene.js` | Per-frame coordinator: network, movement, rules/timers, proximity, and target ring. |
 | `Lab.movePlayer()` | `js/scene.js` | Converts keyboard/touch input to player velocity and returns whether the player is running. |
+| `Lab.setMapZoom(zoom)` | `js/scene.js` | Clamps map zoom to 100–300%, follows the local player while zoomed, and resets the camera at 100%. |
 
 `update()` calls `updateNet()` first. It then moves the local player. The host (or solo player) runs shared rules, timer, and evacuation checks; a connected guest uses the host's shared snapshot.
 
