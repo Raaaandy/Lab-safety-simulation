@@ -19,6 +19,9 @@ function startGame(){
     scale: {mode:Phaser.Scale.FIT, autoCenter:Phaser.Scale.CENTER_BOTH},
     scene: [Lab]
   });
+  const gameResizeObserver = new ResizeObserver(() => game.scale.refresh());
+  gameResizeObserver.observe($('game'));
+  window.addEventListener('resize', () => requestAnimationFrame(() => game.scale.refresh()));
   const scene = () => game.scene.getScene('lab');
 
   $('btnAct').onclick  = () => scene().act();

@@ -39,7 +39,7 @@ The `*Methods` objects are mixed into `Lab.prototype` at the bottom of `scene.js
 | `startGame()` | `js/main.js` | Creates the Phaser game, binds Interact/Describe/Restart/panel buttons, and focuses the map. |
 | `setPanelHidden(hidden)` | `js/main.js` | Shows/hides the side panel and moves the task line into/out of Latest. |
 
-`startGame()` also wires the map zoom buttons to `Lab.setMapZoom()` using the current Phaser camera zoom.
+`startGame()` also wires the map zoom buttons to `Lab.setMapZoom()` using the current Phaser camera zoom. A `ResizeObserver` and window resize handler refresh Phaser's scale when the map container or browser viewport changes, including responsive breakpoints and browser zoom.
 
 ### Scene and movement
 

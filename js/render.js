@@ -31,6 +31,14 @@ const RenderMethods = {
     g.fillStyle(hex('--line'), 1);
     WALLS.forEach(([x,y,w,h]) => g.fillRect(x, y, w, h));
     EXITS.forEach(e => g.fillStyle(hex('--green'),1).fillTriangle(e.x-8, e.y-6, e.x+8, e.y-6, e.x, e.y+6));
+    const {x,y,size,box} = FIRST_AID;
+    g.fillStyle(hex('--paper'), 1)
+      .fillRect(x-(box-size)/2, y-(box-size)/2, box, box);
+    g.lineStyle(2, hex('--red'), 1)
+      .strokeRect(x-(box-size)/2, y-(box-size)/2, box, box);
+    g.fillStyle(hex('--red'), 1)
+      .fillRect(x+size/3, y, size/3, size)
+      .fillRect(x, y+size/3, size, size/3);
 
     // labels (tall objects get vertical labels)
     this.labels.forEach(t => t.destroy()); this.labels = [];

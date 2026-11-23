@@ -58,6 +58,7 @@ const OBJ = [
   {id:'tableE',label:'Table',x:585,y:846,w:40,h:98,kind:'table',note:'Work table.'},
 ];
 const UTILS = [[502,266],[686,268],[313,512],[526,512],[680,510],[83,510],[89,822],[515,818],[309,1059]];
+const FIRST_AID = {x:940,y:40,size:32,box:44};
 const TROUGH = {x:428,y:46,w:20,h:1052};
 const SPILL = {x:290,y:478,r:24};
 

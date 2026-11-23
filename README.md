@@ -44,6 +44,7 @@ Holding Shift makes you run, but running in the lab costs points.
 - **Map** on the left, with the **Latest** bar underneath showing the most recent message. It flashes briefly when something new happens, turns red for urgent steps and violations, and green for successes.
 - **Side panel** on the right with the current task, timer, status, full event log, settings and controls. Click **Hide side panel** (top right) to give the map the full width; the current task, score and timer then appear in the Latest bar instead. Click **Show side panel** to bring it back.
 - **Map zoom.** Use the `+` and `−` controls just below the map to zoom around your player dot. Select the percentage button to reset to the full map.
+- **Browser zoom.** The page layout and map canvas resize with Chrome's normal zoom controls.
 
 ## The drill
 
