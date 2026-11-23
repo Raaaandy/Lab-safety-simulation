@@ -1,11 +1,10 @@
-// net.js: optional two-player co-op on two laptops (see TWO-PLAYER.md).
-// Only switches on when the page is served by server.py. Opened any other way (double-click,
-// GitHub Pages) the join fails silently and the game stays exactly single-player.
+// net.js: optional two-player co-op with room codes (see TWO-PLAYER.md).
+// Multiplayer is available only when the page is served by server.py.
 // Player 1 (host) runs all drill logic. Player 2 (guest) moves locally, sends its position,
 // E presses and running violations, and draws the drill from the host's snapshot.
 // NetMethods at the bottom are added to the Lab scene (see scene.js), so `this` is the scene.
 
-const NET = {on:false, role:1, id:null, peer:null, peerSeen:0, out:[], inbox:[], busy:false,
+const NET = {on:false, role:1, id:null, room:null, peer:null, peerSeen:0, out:[], inbox:[], busy:false,
              game:null, lastRun:null, staleRun:null, roleChanged:false};
 const peerOnline = () => NET.on && !!NET.peer && Date.now() - NET.peerSeen < 1500;
 const pname = pn => 'Player ' + pn;
@@ -28,20 +27,26 @@ async function post(path, body, ms=2000){
   } finally { clearTimeout(timer); }
 }
 
-// Called once before the game starts. Any failure means single-player.
-async function netJoin(){
-  if(!location.protocol.startsWith('http') || location.hostname.endsWith('github.io')) return;
+async function netAvailable(){
+  if(!location.protocol.startsWith('http') || location.hostname.endsWith('github.io')) return false;
   try{
-    const r = await post('/api/join');
-    if(!r.ok) return;
-    const j = await r.json();
-    if(j.role === 0){ NET.full = true; return; }
-    if(!j.role || !j.id) return;
-    Object.assign(NET, {on:true, role:j.role, id:j.id});
-    addEventListener('pagehide', () => navigator.sendBeacon('/api/leave', JSON.stringify({id:NET.id})));
-    await netTick();                 // learn whether a partner is already here before the scene starts
-    setInterval(netTick, 100);
-  }catch(e){}
+    const r = await fetch('/api/status', {cache:'no-store'});
+    if(!r.ok) return false;
+    const status = await r.json();
+    return status.rooms === true;
+  }catch(e){ return false; }
+}
+
+async function enterRoom(action, room=''){
+  const path = action === 'create' ? '/api/rooms/create' : '/api/rooms/join';
+  const r = await post(path, action === 'create' ? {} : {room});
+  const result = await r.json();
+  if(!r.ok) throw new Error(result.error || 'Unable to enter the room.');
+  Object.assign(NET, {on:true, role:result.role, id:result.id, room:result.room});
+  addEventListener('pagehide', () => navigator.sendBeacon('/api/leave', JSON.stringify({id:NET.id})), {once:true});
+  await netTick();
+  setInterval(netTick, 100);
+  return result;
 }
 
 // ~10 times a second: send my position (and the host's snapshot), get the partner's and any messages
@@ -68,10 +73,17 @@ async function netTick(){
 }
 
 async function rejoin(){
-  const j = await (await post('/api/join')).json();
-  if(!j.role){ NET.on = false; NET.peer = null; return; }
-  if(j.role !== NET.role) NET.roleChanged = true;
-  Object.assign(NET, {role:j.role, id:j.id});
+  try{
+    const r = await post('/api/rooms/join', {room:NET.room});
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.error || 'The room is no longer available.');
+    if(j.role !== NET.role) NET.roleChanged = true;
+    Object.assign(NET, {role:j.role, id:j.id, room:j.room});
+  }catch(e){
+    NET.on = false; NET.peer = null;
+    const sc = NET.game && NET.game.scene.getScene('lab');
+    if(sc && sc.scene.isActive()) log('The room connection was lost. Reload and create or join a room again.', 'bad');
+  }
 }
 
 const NetMethods = {
@@ -103,7 +115,7 @@ const NetMethods = {
     if(stepChanged){
       this.shownStep = sh.step;
       this.stepFx();
-      if(this.step) log(this.stepText(), this.step.urgent ? 'bad' : null);
+      if(this.step) log(this.stepText(), this.step.urgent ? 'urgent' : null);
     } else if(this.s.spill !== this.spillShown) this.drawSpill();
     this.spillShown = this.s.spill;
     if(sh.done && !this.endShown){ this.endShown = true; this.player.body.setVelocity(0); this.showEndScreen(sh.secs); }
@@ -147,7 +159,7 @@ const NetMethods = {
         if(!this.guest && NET.role === 2){ NET.staleRun = NET.lastRun; this.scene.restart(); return true; }
         if(!this.guest && (this.s.step > 0 || this.s.done)){ send({t:'restart'}); this.scene.restart(); return true; }
         log(`${pname(this.other)} connected. You are ${pname(this.me)}, the blue circle; your partner is the orange circle.`, 'good');
-        if(!this.guest && this.step) log(this.stepText(), this.step.urgent ? 'bad' : null);
+        if(!this.guest && this.step) log(this.stepText(), this.step.urgent ? 'urgent' : null);
       } else {
         log(`${pname(this.other)} disconnected. You can keep playing on your own.`);
         this.partnerLeft();

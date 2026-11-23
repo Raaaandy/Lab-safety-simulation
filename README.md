@@ -24,7 +24,7 @@ There are two versions:
 
 ## Playing with a partner
 
-Two people can play together on two laptops on the same Wi-Fi: one runs `server.py`, and both open the game from it. Some steps then need both of you, such as containing the spill from both sides and both getting out during the fire alarm. The team shares one score. See [TWO-PLAYER.md](TWO-PLAYER.md) for how to set it up.
+Two people can play together on two laptops on the same Wi-Fi: one runs `server.py`, and both open the game from it. The first player creates a room and shares its six-character code for the other player to join. Some steps then need both of you, such as containing the spill from both sides and both getting out during the fire alarm. The team shares one score. See [TWO-PLAYER.md](TWO-PLAYER.md) for how to set it up.
 
 The online version and a double-clicked `index.html` are always single-player.
 
@@ -43,6 +43,8 @@ Holding Shift makes you run, but running in the lab costs points.
 
 - **Map** on the left, with the **Latest** bar underneath showing the most recent message. It flashes briefly when something new happens, turns red for urgent steps and violations, and green for successes.
 - **Side panel** on the right with the current task, timer, status, full event log, settings and controls. Click **Hide side panel** (top right) to give the map the full width; the current task, score and timer then appear in the Latest bar instead. Click **Show side panel** to bring it back.
+- **Map zoom.** Use the `+` and `−` controls just below the map to zoom around your player dot. Select the percentage button to reset to the full map.
+- **Browser zoom.** The page layout and map canvas resize with Chrome's normal zoom controls.
 
 ## The drill
 
@@ -110,9 +112,13 @@ server.py           two-player server: serves the game and relays messages (Pyth
 TWO-PLAYER.md       how to play on two laptops
 pixel.html          pixel-art version (single file, same drill and rules)
 README.md           this file
+HANDOFF.md          user / non-CSE plain-language handoff guide
+HANDOFF-PROGRAM.md  CSE technical handoff: functions, architecture, and extension points
 ```
 
 The scripts are plain `<script>` tags rather than ES modules, so the game still works when `index.html` is opened by double-clicking. They load in the order listed in `index.html`, and that order matters: data and helpers first, `main.js` last.
+
+For handoff documentation, see [HANDOFF.md](./HANDOFF.md) (user / non-CSE) or [HANDOFF-PROGRAM.md](./HANDOFF-PROGRAM.md) (CSE technical guide with function responsibilities and extension points).
 
 ## Where to look for what
 
@@ -130,6 +136,7 @@ The scripts are plain `<script>` tags rather than ES modules, so the game still 
 | Change the Describe (Q) output or proximity announcements | `js/awareness.js` |
 | Change how the map or side panel looks | `js/render.js`, `css/style.css` |
 | Change movement speed or controls | `js/scene.js` → `movePlayer()`, `create()` |
+| Change map zoom behavior | `js/scene.js` → `setMapZoom()`; buttons in `index.html` and `js/main.js` |
 | Change two-player wording | `teamText` in `STEPS` (`js/data.js`); the eyewash wording is in `stepText()` (`js/drill.js`) |
 | Change which steps need both players | `act()` in `js/drill.js` (PPE, spill) and `checkEvacuation()` in `js/rules.js` |
 | Change two-player networking (what is synced, connects / disconnects) | `js/net.js` |

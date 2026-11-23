@@ -77,9 +77,13 @@ class Lab extends Phaser.Scene{
     // Keyboard
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,SHIFT,E,Q,SPACE');
     this.keys.E.on('down', () => this.act());
-    this.keys.SPACE.on('down', () => this.act());
+    this.keys.SPACE.on('down', event => {
+      if(document.activeElement.matches('input[type="checkbox"]')) return;
+      this.act();
+      event.preventDefault();
+    });
     this.keys.Q.on('down', () => this.describe());
-    this.input.keyboard.addCapture('UP,DOWN,LEFT,RIGHT,SPACE');
+    this.input.keyboard.addCapture('UP,DOWN,LEFT,RIGHT');
 
     // Touch / mouse: press and hold to walk toward that spot
     this.pointerTarget = null;
@@ -90,7 +94,6 @@ class Lab extends Phaser.Scene{
     $('log').innerHTML = '';
     if(!NET.on){
       log('You are at the entrance of B035, top left of the map, next to the cubbies. Arrow keys or WASD to move, E to interact.');
-      if(NET.full) log('Two players are already connected, so you are playing on your own.');
     } else {
       log(`Two-player mode. You are ${pname(this.me)}, the blue circle, at the entrance next to the cubbies, top left of the map. ` +
           (peerOnline() ? 'Your partner is the orange circle.' : 'Waiting for your partner to join; you can start on your own.'));
@@ -116,6 +119,7 @@ class Lab extends Phaser.Scene{
     this.warnTimer();               // rules.js
     this.showTimer();               // render.js
     this.updateProximity();         // awareness.js
+    this.updateNavigator();         // render.js
     this.drawTargetRing(time);      // render.js
   }
 
@@ -133,6 +137,20 @@ class Lab extends Phaser.Scene{
     if(len){ p.body.setVelocity(vx/len*speed, vy/len*speed); p.rotation = Math.atan2(vx, -vy); }
     else p.body.setVelocity(0);
     return running;
+  }
+
+  setMapZoom(zoom){
+    const camera = this.cameras.main;
+    const nextZoom = Math.max(1, Math.min(3, zoom));
+    camera.setZoom(nextZoom);
+    if(nextZoom === 1){
+      camera.stopFollow();
+      camera.setScroll(0, 0);
+    } else {
+      camera.startFollow(this.player, false, 1, 1);
+    }
+    this.updateEndScreenScale();
+    $('btnZoomReset').textContent = `${Math.round(nextZoom * 100)}%`;
   }
 }
 

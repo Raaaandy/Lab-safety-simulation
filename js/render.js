@@ -31,6 +31,14 @@ const RenderMethods = {
     g.fillStyle(hex('--line'), 1);
     WALLS.forEach(([x,y,w,h]) => g.fillRect(x, y, w, h));
     EXITS.forEach(e => g.fillStyle(hex('--green'),1).fillTriangle(e.x-8, e.y-6, e.x+8, e.y-6, e.x, e.y+6));
+    const {x,y,size,box} = FIRST_AID;
+    g.fillStyle(hex('--paper'), 1)
+      .fillRect(x-(box-size)/2, y-(box-size)/2, box, box);
+    g.lineStyle(2, hex('--red'), 1)
+      .strokeRect(x-(box-size)/2, y-(box-size)/2, box, box);
+    g.fillStyle(hex('--red'), 1)
+      .fillRect(x+size/3, y, size/3, size)
+      .fillRect(x, y+size/3, size, size/3);
 
     // labels (tall objects get vertical labels)
     this.labels.forEach(t => t.destroy()); this.labels = [];
@@ -60,7 +68,30 @@ const RenderMethods = {
     if(!guide) return;
     const t = this.targetPoint(); if(!t) return;
     const pulse = 4*Math.sin(time/220);
-    this.ring.lineStyle(3, hex(this.step.urgent ? '--red' : '--green'), .9).strokeCircle(t.x, t.y, t.r+pulse);
+    const color = hex(this.step.urgent ? '--red' : '--green');
+    this.ring.lineStyle(5, hex('--paper'), 1).strokeCircle(t.x, t.y, t.r+8+pulse);
+    this.ring.lineStyle(3, color, 1).strokeCircle(t.x, t.y, t.r+8+pulse);
+  },
+
+  updateNavigator(){
+    const target = this.targetPoint();
+    const arrow = $('navigatorArrow'), destination = $('navigatorDestination');
+    if(!target){
+      if(this.navigatorValue === 'No active destination') return;
+      this.navigatorValue = 'No active destination';
+      arrow.textContent = '•';
+      destination.textContent = 'No active destination';
+      return;
+    }
+    const dx = target.x-this.player.x, dy = target.y-this.player.y;
+    const direction = compass(dx, dy);
+    const arrows = {'north':'↑','north-east':'↗','east':'→','south-east':'↘',
+      'south':'↓','south-west':'↙','west':'←','north-west':'↖'};
+    const text = `${target.label} · ${(Math.hypot(dx,dy)*M_PER_PX).toFixed(1)} m ${direction}`;
+    if(text === this.navigatorValue) return;
+    this.navigatorValue = text;
+    arrow.textContent = arrows[direction];
+    destination.textContent = text;
   },
 
   // Side panel: task card, PPE / carrying / score / two-player chips
@@ -76,7 +107,7 @@ const RenderMethods = {
     $('chipCarry').classList.toggle('on', P.carry || P.kit);
     $('chipScore').textContent = scoreWord + ' ' + this.s.score;
     // Two-player status (hidden in single-player)
-    const partner = `You: ${pname(this.me)}. Partner: ${this.team() ? 'connected' : 'not connected'}.`;
+    const partner = `Room ${NET.room}. You: ${pname(this.me)}. Partner: ${this.team() ? 'connected' : 'not connected'}.`;
     $('chipRole').hidden = !NET.on;
     $('chipRole').textContent = partner;
     $('chipRole').classList.toggle('on', this.team());
@@ -91,6 +122,7 @@ const RenderMethods = {
     $('latestTask').append(strong, span, t);
     if(this.pCarry) this.pCarry.setVisible(P.carry || P.kit).setFillStyle(hex(P.carry ? '--red' : '--yellow'));
     if(this.qCarry) this.qCarry.setVisible(Q.carry || Q.kit).setFillStyle(hex(Q.carry ? '--red' : '--yellow'));
+    this.updateHealthBar();
   },
 
   // Countdown shown on the task card (hidden from screen readers; they get a 5-second warning instead)
@@ -104,12 +136,26 @@ const RenderMethods = {
   },
 
   showEndScreen(secs){
+    setPanelHidden(false);
     const v = this.s.violations, ink = css('--ink'), font = 'Atkinson Hyperlegible, sans-serif';
     $('timer').hidden = true; this.refreshHUD(); this.showTimer();
-    this.add.rectangle(W/2, H/2, 520, 260, hex('--surface'), .96).setStrokeStyle(4, hex('--green')).setDepth(20);
-    this.add.text(W/2, H/2-70, this.team() ? 'You both made it out.' : 'You made it out.', {fontFamily:font, fontSize:'34px', fontStyle:'bold', color:ink}).setOrigin(.5).setDepth(21);
-    this.add.text(W/2, H/2+10, `${this.team() ? 'Team score' : 'Score'} ${this.s.score}/100 in ${secs} s\n${v.length} violation${v.length===1?'':'s'} — see the event log`,
-      {fontFamily:font, fontSize:'20px', color:ink, align:'center'}).setOrigin(.5).setDepth(21);
-    this.add.text(W/2, H/2+80, 'Press Restart to try again', {fontFamily:font, fontSize:'16px', color:css('--muted')}).setOrigin(.5).setDepth(21);
+    this.endScreenObjects = [
+      {object:this.add.rectangle(W/2, H/2, 520, 260, hex('--surface'), .96).setStrokeStyle(4, hex('--green')).setDepth(20), y:0},
+      {object:this.add.text(W/2, H/2-70, this.team() ? 'You both made it out.' : 'You made it out.',
+        {fontFamily:font, fontSize:'34px', fontStyle:'bold', color:ink}).setOrigin(.5).setDepth(21), y:-70},
+      {object:this.add.text(W/2, H/2+10, `${this.team() ? 'Team score' : 'Score'} ${this.s.score}/100 in ${secs} s\n${v.length} violation${v.length===1?'':'s'} — see the event log`,
+        {fontFamily:font, fontSize:'20px', color:ink, align:'center'}).setOrigin(.5).setDepth(21), y:10},
+      {object:this.add.text(W/2, H/2+80, 'Press Restart to try again',
+        {fontFamily:font, fontSize:'16px', color:css('--muted')}).setOrigin(.5).setDepth(21), y:80},
+    ];
+    this.updateEndScreenScale();
+  },
+
+  updateEndScreenScale(){
+    if(!this.endScreenObjects) return;
+    const zoom = this.cameras.main.zoom;
+    this.endScreenObjects.forEach(({object,y}) => {
+      object.setScrollFactor(0).setPosition(W/2, H/2+y/zoom).setScale(1/zoom);
+    });
   },
 };

@@ -35,7 +35,7 @@ const DrillMethods = {
     if(!st) return this.finish();
     this.s.timer = st.timer ? st.timer : null;
     this.s.timerFailed = false; this.s.warned = false;
-    log(this.stepText(), st.urgent ? 'bad' : null);   // the guest logs it from the host's snapshot
+    log(this.stepText(), st.urgent ? 'urgent' : null);   // the guest logs it from the host's snapshot
     this.refreshHUD();
   },
 
@@ -139,14 +139,14 @@ const DrillMethods = {
   targetPoint(){
     const st = this.step, p = this.player;
     if(!st || this.s.done) return null;
-    if(st.target[0] === 'spill') return {x:SPILL.x, y:SPILL.y, r:SPILL.r+14};
+    if(st.target[0] === 'spill') return {x:SPILL.x, y:SPILL.y, r:SPILL.r+14, label:'Spill'};
     if(st.target[0] === 'exit'){
       const e = EXITS.slice().sort((a,b) => Math.hypot(a.x-p.x,a.y-p.y) - Math.hypot(b.x-p.x,b.y-p.y))[0];
-      return {x:e.x, y:e.y, r:22};
+      return {x:e.x, y:e.y, r:22, label:e.name};
     }
     const o = OBJ.filter(o => st.target.includes(o.id))
                  .sort((a,b) => distToRect(p.x,p.y,a) - distToRect(p.x,p.y,b))[0];
-    return {x:o.x+o.w/2, y:o.y+o.h/2, r:Math.max(o.w,o.h)/2+10};
+    return {x:o.x+o.w/2, y:o.y+o.h/2, r:Math.max(o.w,o.h)/2+10, label:o.label.replace(/\n/g,' ')};
   },
 
   startAlarm(){

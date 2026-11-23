@@ -55,9 +55,10 @@ const OBJ = [
   {id:'abs',label:'ABS/2000',x:712,y:552,w:28,h:62,kind:'equip',note:'ABS/2000 unit.'},
   {id:'colE1',label:'',x:712,y:200,w:28,h:36,kind:'equip',note:'Structural column.'},
   {id:'colE2',label:'',x:715,y:688,w:25,h:35,kind:'equip',note:'Structural column.'},
-  {id:'tableE',label:'Table',x:580,y:846,w:98,h:40,kind:'table', pic: 'assets/lab_table.jpeg', note:'Work table.'},
+  {id:'tableE',label:'Table',x:585,y:846,w:40,h:98,kind:'table',note:'Work table.'},
 ];
 const UTILS = [[502,266],[686,268],[313,512],[526,512],[680,510],[83,510],[89,822],[515,818],[309,1059]];
+const FIRST_AID = {x:940,y:40,size:32,box:44};
 const TROUGH = {x:428,y:46,w:20,h:1052};
 // const SPILL = {x:290,y:478,r:24};
 const SPILL = {x:290,y:478,r:24, label:'Chemical spill', pic:'assets/chemical_spill.jpeg',

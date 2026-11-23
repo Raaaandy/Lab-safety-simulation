@@ -85,4 +85,14 @@ const RuleMethods = {
     }
     return false;
   },
+  // Update the health bar in the HUD to reflect the current score (0-100)
+  updateHealthBar(){
+    const pct = Math.max(0, Math.min(100, this.s.score));   // 100-point max
+    const fill = document.getElementById('healthFill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('mid', pct <= 60 && pct > 30);
+    fill.classList.toggle('low', pct <= 30);
+    document.getElementById('healthValue').textContent = pct;
+    document.querySelector('.health').setAttribute('aria-valuenow', pct);
+  }
 };
