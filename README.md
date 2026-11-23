@@ -110,9 +110,13 @@ server.py           two-player server: serves the game and relays messages (Pyth
 TWO-PLAYER.md       how to play on two laptops
 pixel.html          pixel-art version (single file, same drill and rules)
 README.md           this file
+HANDOFF.md          user / non-CSE plain-language handoff guide
+HANDOFF-CSE.md      CSE technical handoff: functions, architecture, and extension points
 ```
 
 The scripts are plain `<script>` tags rather than ES modules, so the game still works when `index.html` is opened by double-clicking. They load in the order listed in `index.html`, and that order matters: data and helpers first, `main.js` last.
+
+For handoff documentation, see [HANDOFF.md](./HANDOFF.md) (user / non-CSE) or [HANDOFF-CSE.md](./HANDOFF-CSE.md) (CSE technical guide with function responsibilities and extension points).
 
 ## Where to look for what
 
