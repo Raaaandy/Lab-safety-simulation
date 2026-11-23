@@ -36,9 +36,15 @@ const RenderMethods = {
     this.labels.forEach(t => t.destroy()); this.labels = [];
     const ink = css('--ink');
     OBJ.filter(o => o.label).forEach(o => {
-      const vertical = o.h > o.w*1.5;
+      // Keep explicitly wrapped labels horizontal; rotating them would turn
+      // their separate lines into side-by-side text.
+      const vertical = (o.verticalLabel ?? (o.h > o.w*1.5)) && !o.label.includes('\n');
+      const labelLength = vertical ? o.h : o.w;
+      const labelThickness = vertical ? o.w : o.h;
       const t = this.add.text(o.x+o.w/2, o.y+o.h/2, o.label, {fontFamily:'Atkinson Hyperlegible, sans-serif',
-        fontSize: (o.w<30 || o.h<20) && !vertical ? '11px' : '14px', fontStyle:'bold', color:ink, align:'center'}).setOrigin(.5);
+        fontSize: labelLength<30 || labelThickness<20 ? '13px' : '18px', fontStyle:'bold', color:ink, align:'center',
+        padding:{top:5, bottom:5},
+        wordWrap:{width:Math.max(12, labelLength-4), useAdvancedWrap:true}}).setOrigin(.5);
       if(vertical) t.setAngle(-90);
       this.labels.push(t);
     });

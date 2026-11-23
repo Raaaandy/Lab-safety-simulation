@@ -20,7 +20,7 @@ const EXITS = [
 const OBJ = [
   {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood', pic: 'assets/fume_hood.jpeg',note:'Work with volatile or toxic chemicals here, sash lowered to the marked height.'},
   {id:'pdpump',label:'PD Pump',x:416,y:26,w:90,h:46,kind:'equip',note:'Positive displacement pump. Never run against a closed outlet valve.'},
-  {id:'benchT',label:'Bench',x:520,y:26,w:75,h:52,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
+  {id:'benchT',label:'Bench',x:520,y:26,w:75,h:52,kind:'bench',verticalLabel:true,note:'Open bench. No volatile solvent dispensing here.'},
   {id:'cubbyA',label:'Cubbies',x:650,y:26,w:60,h:18,kind:'cubby',note:'Store bags here and put on goggles, lab coat and gloves.'},
   {id:'cubbyB',label:'Cubbies',x:722,y:40,w:18,h:58,kind:'cubby',note:'Store bags here and put on goggles, lab coat and gloves.'},
   {id:'flamTop',label:'',x:185,y:145,w:92,h:20,kind:'equip',note:'Storage shelf.'},
@@ -40,7 +40,7 @@ const OBJ = [
   {id:'sink',label:'Sink',x:26,y:760,w:50,h:97,kind:'wash',note:'Sink. Wash your hands before leaving the lab.'},
   {id:'eyewash',label:'Eye Wash +\nSafety Shower',x:681,y:806,w:54,h:118,kind:'wash',pic:'assets/eyewash_station.jpeg',note:'Eye wash and safety shower. Flush eyes for at least 15 minutes after a splash.'},
   {id:'dvi',label:'DVI/3000',x:298,y:773,w:66,h:37,kind:'equip',note:'DVI/3000 unit.'},
-  {id:'coldisp',label:'Column Display',x:311,y:811,w:54,h:101,kind:'equip',note:'Distillation column display.'},
+  {id:'coldisp',label:'Column\nDisplay',x:311,y:811,w:54,h:101,kind:'equip',note:'Distillation column display.'},
   {id:'piping',label:'Piping',x:365,y:844,w:98,h:14,kind:'equip',note:'Overhead piping run. Mind your head and step.'},
   {id:'gantry',label:'Gantry',x:239,y:913,w:125,h:47,kind:'equip',note:'Gantry crane. Stay clear of suspended loads.'},
   {id:'tableW',label:'Table',x:99,y:887,w:82,h:40,kind:'table',note:'Work table.'},

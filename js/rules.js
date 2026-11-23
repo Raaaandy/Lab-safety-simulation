@@ -32,7 +32,7 @@ const RuleMethods = {
   },
 
   // Rules for every player present (the partner's position comes from the network)
-  checkRules(){
+  checkRules(dt=0){
     for(const pn of this.players()){
       const q = this.posOf(pn), P = this.ps[pn];
       if(!q) continue;
@@ -42,9 +42,32 @@ const RuleMethods = {
       // Carrying acetone near an ignition source
       if(P.carry && this.nearObj(['steam','hx'], 50, q))
         this.violate('ignite', 'Carried acetone next to the steam bench / heat exchanger, an ignition source.', pn);
-      // Walking through the spill
-      if(this.s.spill && this.nearSpill(q, 6))
-        this.violate('spill', 'Walked through the spill and tracked it across the floor.', pn);
+      // Walking through or staying in the spill
+      const inSpill = this.s.spill && this.nearSpill(q, 6);
+      const wasInSpill = this.spillInside?.[pn] ?? false;
+
+      if(inSpill && !wasInSpill){
+        this.s.score = Math.max(0, this.s.score - 10);
+        this.s.violations.push(`${pname(pn)}: Walked through the spill.`);
+        say('Violation: Walked through the spill.', 'bad');
+        this.refreshHUD();
+      }
+
+      if(inSpill){
+        const elapsed = (this.spillTime[pn] || 0) + dt;
+        const threeSecondIntervals = Math.floor(elapsed / 3);
+        const chargedIntervals = Math.floor((this.spillTime[pn] || 0) / 3);
+        if(threeSecondIntervals > chargedIntervals){
+          this.s.score = Math.max(0, this.s.score - 5 * (threeSecondIntervals - chargedIntervals));
+          this.refreshHUD();
+        }
+        this.spillTime[pn] = elapsed;
+      } else {
+        this.spillTime[pn] = 0;
+      }
+
+      this.spillInside ??= {};
+      this.spillInside[pn] = inSpill;
     }
   },
 

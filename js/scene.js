@@ -29,6 +29,7 @@ class Lab extends Phaser.Scene{
     const fresh = () => ({ppe:false, carry:false, kit:false, out:false});
     this.ps = {1:fresh(), 2:fresh()};
     this.ranSent = {};
+    this.spillTime = {1:0, 2:0};
 
     // Drawing layers
     this.mapG = this.add.graphics();
@@ -109,7 +110,7 @@ class Lab extends Phaser.Scene{
 
     this.checkRunning(dt, running);  // rules.js
     if(!this.guest){                 // the host (or single player) runs the drill
-      this.checkRules();             // rules.js
+      this.checkRules(dt);           // rules.js
       this.updateTimer(dt);          // rules.js
       if(this.checkEvacuation()) return;  // rules.js
     }
