@@ -21,10 +21,10 @@ const OBJ = [
   {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood', pic: 'assets/fume_hood.jpeg',note:'Work with volatile or toxic chemicals here, sash lowered to the marked height.'},
   {id:'pdpump',label:'PD Pump',x:416,y:26,w:90,h:46,kind:'equip',note:'Positive displacement pump. Never run against a closed outlet valve.'},
   {id:'benchT',label:'Bench',x:520,y:26,w:75,h:52,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
-  {id:'cubbyA',label:'Cubbies',x:650,y:26,w:60,h:18,kind:'cubby',note:'Store bags here and put on goggles, lab coat and gloves.'},
-  {id:'cubbyB',label:'Cubbies',x:722,y:40,w:18,h:58,kind:'cubby',note:'Store bags here and put on goggles, lab coat and gloves.'},
+  {id:'cubbyA',label:'Cubbies',x:650,y:26,w:60,h:18,kind:'cubby', pic: 'assets/ppe.jpeg', note:'Store bags here and put on goggles, lab coat and gloves.'},
+  {id:'cubbyB',label:'Cubbies',x:722,y:40,w:18,h:58,kind:'cubby', pic: 'assets/ppe.jpeg', note:'Store bags here and put on goggles, lab coat and gloves.'},
   {id:'flamTop',label:'',x:185,y:145,w:92,h:20,kind:'equip',note:'Storage shelf.'},
-  {id:'flam',label:'Flammables',x:185,y:182,w:42,h:85,kind:'flam',note:'Flammables cabinet. Keep doors closed; return containers right after use.'},
+  {id:'flam',label:'Flammables',x:185,y:182,w:42,h:85,kind:'flam', pic: 'assets/naoh.jpeg', note:'Flammables cabinet. Keep doors closed; return containers right after use.'},
   {id:'freezer',label:'-80° Freezer',x:237,y:168,w:42,h:98,kind:'cold',note:'Ultra-low freezer. Wear cryo gloves; frostbite risk on contact.'},
   {id:'flamBot',label:'',x:185,y:270,w:92,h:20,kind:'equip',note:'Storage shelf.'},
   {id:'fluid',label:'Fluid Friction',x:402,y:232,w:25,h:124,kind:'equip',note:'Fluid friction rig. Check fittings for leaks before running.'},
@@ -38,16 +38,16 @@ const OBJ = [
   {id:'bump',label:'Bumpout',x:26,y:499,w:16,h:261,kind:'equip',note:'Wall bump-out.'},
   {id:'box',label:'',x:213,y:690,w:33,h:32,kind:'equip',note:'Structural column.'},
   {id:'sink',label:'Sink',x:26,y:760,w:50,h:97,kind:'wash',note:'Sink. Wash your hands before leaving the lab.'},
-  {id:'eyewash',label:'Eye Wash +\nSafety Shower',x:681,y:806,w:54,h:118,kind:'wash',pic:'assets/eyewash_station.jpeg',note:'Eye wash and safety shower. Flush eyes for at least 15 minutes after a splash.'},
+  {id:'eyewash',label:'Eye Wash +\nSafety Shower',x:681,y:806,w:54,h:118,kind:'wash',pic:'assets/eyewash.jpeg',note:'Eye wash and safety shower. Flush eyes for at least 15 minutes after a splash.'},
   {id:'dvi',label:'DVI/3000',x:298,y:773,w:66,h:37,kind:'equip',note:'DVI/3000 unit.'},
   {id:'coldisp',label:'Column Display',x:311,y:811,w:54,h:101,kind:'equip',note:'Distillation column display.'},
   {id:'piping',label:'Piping',x:365,y:844,w:98,h:14,kind:'equip',note:'Overhead piping run. Mind your head and step.'},
   {id:'gantry',label:'Gantry',x:239,y:913,w:125,h:47,kind:'equip',note:'Gantry crane. Stay clear of suspended loads.'},
-  {id:'tableW',label:'Table',x:99,y:887,w:82,h:40,kind:'table',note:'Work table.'},
+  {id:'tableW',label:'Table',x:99,y:887,w:82,h:40,kind:'table', pic: 'assets/lab_table.jpeg', note:'Work table.'},
   {id:'steam',label:'Steam Bench',x:109,y:1052,w:182,h:47,kind:'hot',note:'Steam bench. Hot surfaces and an ignition source; keep solvents away.'},
   {id:'column',label:'Column',x:291,y:1057,w:43,h:42,kind:'equip',note:'Column base.'},
   {id:'hx',label:'Heat Exchange',x:334,y:1047,w:100,h:52,kind:'hot',note:'Heat exchanger. Hot lines; do not touch without heat-resistant gloves.'},
-  {id:'blue',label:'Blue Cabinet',x:514,y:1064,w:94,h:35,kind:'cab',note:'Blue cabinet. In this demo it holds the spill kit.'},
+  {id:'blue',label:'Blue Cabinet',x:514,y:1064,w:94,h:35,kind:'cab', pic: 'assets/spill_kit.jpeg', note:'Blue cabinet. In this demo it holds the spill kit.'},
   {id:'benchR1',label:'Bench',x:508,y:247,w:55,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'benchR2',label:'Bench',x:508,y:392,w:55,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'rap',label:'RAP/4000',x:704,y:292,w:36,h:94,kind:'equip',note:'RAP/4000 unit.'},
@@ -55,11 +55,13 @@ const OBJ = [
   {id:'abs',label:'ABS/2000',x:712,y:552,w:28,h:62,kind:'equip',note:'ABS/2000 unit.'},
   {id:'colE1',label:'',x:712,y:200,w:28,h:36,kind:'equip',note:'Structural column.'},
   {id:'colE2',label:'',x:715,y:688,w:25,h:35,kind:'equip',note:'Structural column.'},
-  {id:'tableE',label:'Table',x:580,y:846,w:98,h:40,kind:'table',note:'Work table.'},
+  {id:'tableE',label:'Table',x:580,y:846,w:98,h:40,kind:'table', pic: 'assets/lab_table.jpeg', note:'Work table.'},
 ];
 const UTILS = [[502,266],[686,268],[313,512],[526,512],[680,510],[83,510],[89,822],[515,818],[309,1059]];
 const TROUGH = {x:428,y:46,w:20,h:1052};
-const SPILL = {x:290,y:478,r:24};
+// const SPILL = {x:290,y:478,r:24};
+const SPILL = {x:290,y:478,r:24, label:'Chemical spill', pic:'assets/chemical_spill.jpeg',
+  alt:'Describe what the spill photo shows here.', note:'Chemical spill. Do not walk through it. Use the spill kit.'};
 
 // The drill, in order. Each step needs:
 //   id       a short name, used in drill.js (act) and rules.js

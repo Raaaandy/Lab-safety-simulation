@@ -35,9 +35,6 @@ const AwarenessMethods = {
     const q = this.team() && this.posOf(this.other);
     if(q){ const d = Math.hypot(q.x-p.x, q.y-p.y) * M_PER_PX; extra += ` Your partner is ${d.toFixed(1)} m ${compass(q.x-p.x, q.y-p.y)}.`; }
     say('Nearest: ' + list.join('; ') + '.' + extra, null, this.me);
-
-    if(this.s.spill && this.nearSpill(p, 30)) this.showPic(SPILL);
-    else this.showPic(sorted[0] && sorted[0].d <= 38 ? sorted[0].o : null);
   },
 
   showPic(o){
@@ -49,6 +46,13 @@ const AwarenessMethods = {
     $('objPic').src = o.pic;
     $('objPic').alt = o.label + '. ' + (o.note || '');
     $('objPicCap').textContent = o.label;
+  },
+
+  // Show the picture for whatever the player is standing next to (called when E is pressed)
+  showPicHere(){
+    const p = this.player;
+    if(this.s.spill && this.nearSpill(p, 30)) this.showPic(SPILL);
+    else this.showPic(this.nearest());
   },
 
   // Every frame: update the "Nearby" box and the E bubble, and announce changes once

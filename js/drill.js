@@ -49,6 +49,7 @@ const DrillMethods = {
   // The E key. pn = which player pressed it, pos = where they were standing.
   // Completes the current step if that player is in the right place, otherwise reads the nearest safety note.
   act(pn=this.me, pos=null){
+    this.showPicHere();
     pos = pos || {x:this.player.x, y:this.player.y};
     if(this.guest && pn === this.me){ if(!this.s.done) send({t:'act', x:pos.x, y:pos.y}); return; }
     if(this.s.done) return;
