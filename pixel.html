@@ -78,9 +78,10 @@ const WALLS = [
 const FLOORS = [[26,26,714,80],[90,100,650,402],[26,497,714,392],[99,883,641,216]];
 const DOORS = [[90,18,65,12],[595,18,55,12],[736,140,12,50],[736,985,12,50],[610,1095,70,12]];
 const OBJ = [
-  {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood',note:'Work with volatile or toxic chemicals here, sash lowered to the marked height.'},
+  {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood',note:'Work with volatile or toxic chemicals here, sash lowered to the marked height. The base cabinet under the fume hood stores NaOH.'},
   {id:'pdpump',label:'PD Pump',x:416,y:26,w:90,h:46,kind:'equip',note:'Positive displacement pump. Never run against a closed outlet valve.'},
   {id:'benchT',label:'Bench',x:520,y:26,w:75,h:52,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
+  {id:'pigmats',label:'Pig Mats',x:595,y:26,w:55,h:52,kind:'equip',note:'Absorbent pig mats. Stored near the cubbies and positive displacement pump.'},
   {id:'cubbyA',label:'Cubbies',x:650,y:26,w:60,h:18,kind:'cubby',note:'Store bags here and put on goggles, lab coat and gloves.'},
   {id:'cubbyB',label:'Cubbies',x:722,y:40,w:18,h:58,kind:'cubby',note:'Store bags here and put on goggles, lab coat and gloves.'},
   {id:'flamTop',label:'Shelf',x:185,y:145,w:92,h:20,kind:'shelf',note:'Storage shelf.'},
@@ -89,7 +90,7 @@ const OBJ = [
   {id:'flamBot',label:'Shelf',x:185,y:270,w:92,h:20,kind:'shelf',note:'Storage shelf.'},
   {id:'fluid',label:'Fluid Friction',x:402,y:232,w:25,h:124,kind:'equip',note:'Fluid friction rig. Check fittings for leaks before running.'},
   {id:'tote',label:'Pump Tote',x:364,y:356,w:62,h:40,kind:'equip',note:'Water tote. Wipe up drips; wet floors are a slip hazard.'},
-  {id:'centri',label:'Centrifugal Pump',x:343,y:405,w:64,h:135,kind:'equip',note:'Centrifugal pump. Keep guards on and loose clothing away from the shaft.'},
+  {id:'centri',label:'Centrifugal Pump',x:343,y:405,w:64,h:135,kind:'equip',note:'Centrifugal pump. Keep guards on and loose clothing away from the shaft. The spill kit is stored nearby in the center of the room.'},
   {id:'benchL1',label:'Bench',x:204,y:357,w:54,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'benchL2',label:'Bench',x:207,y:510,w:48,h:98,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'osm',label:'OSM/4000',x:88,y:385,w:37,h:112,kind:'equip',note:'OSM/4000 unit.'},
@@ -107,7 +108,6 @@ const OBJ = [
   {id:'steam',label:'Steam Bench',x:109,y:1052,w:182,h:47,kind:'hot',note:'Steam bench. Hot surfaces and an ignition source; keep solvents away.'},
   {id:'column',label:'Column',x:291,y:1057,w:43,h:42,kind:'equip',note:'Column base.'},
   {id:'hx',label:'Heat Exchanger',x:334,y:1047,w:100,h:52,kind:'hot',note:'Heat exchanger. Hot lines; do not touch without heat-resistant gloves.'},
-  {id:'blue',label:'Blue Cabinet',x:514,y:1064,w:94,h:35,kind:'cab',note:'Blue cabinet. In this demo it holds the spill kit.'},
   {id:'benchR1',label:'Bench',x:508,y:247,w:55,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'benchR2',label:'Bench',x:508,y:392,w:55,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'rap',label:'RAP/4000',x:704,y:292,w:36,h:94,kind:'equip',note:'RAP/4000 unit.'},
@@ -129,7 +129,7 @@ const STEPS = [
   {id:'get',   text:'Collect the acetone bottle from the flammables cabinet.', target:['flam']},
   {id:'hood',  text:'Dispense the acetone inside the fume hood.', target:['hood']},
   {id:'return',text:'Return the bottle to the flammables cabinet.', target:['flam']},
-  {id:'kit',   text:'Spill by the benches! Fetch the spill kit from the blue cabinet.', target:['blue'], urgent:true},
+  {id:'kit',   text:'Spill by the benches! Fetch the spill kit near the centrifugal pump.', target:['centri'], urgent:true},
   {id:'clean', text:'Clean up the spill. Don’t walk through it.', target:['spill'], urgent:true},
   {id:'eyewash',text:'A drop splashed into your eye. Get to the eye wash and safety shower by the upper wall, just left of the door!', target:['eyewash'], urgent:true, timer:10},
   {id:'evac',  text:'Fire alarm! Leave the building and walk to the assembly point outside.', target:['assembly'], urgent:true, timer:35},
@@ -426,7 +426,7 @@ class Lab extends Phaser.Scene{
       if(this.nearObj(OBJ.filter(o=>o.kind==='bench').map(o=>o.id))) return this.violate('bench','Tried to dispense acetone on an open bench. Volatile solvents go in the fume hood.');
     }
     if(st.id==='return'&&this.nearObj(['flam'])){ this.s.carry=false; return this.advance('Bottle back in the cabinet, doors closed.'); }
-    if(st.id==='kit'&&this.nearObj(['blue'])){ this.s.kit=true; return this.advance('Spill kit in hand: absorbent pads, scoop and a waste bag.'); }
+    if(st.id==='kit'&&this.nearObj(['centri'])){ this.s.kit=true; return this.advance('Spill kit in hand: absorbent pads, scoop and a waste bag.'); }
     if(st.id==='clean'&&this.nearSpill()){ this.s.spill=false; this.s.kit=false; this.spill.setVisible(false);
       return this.advance('Absorbed from the edges inward and bagged as hazardous waste.'); }
     if(st.id==='eyewash'&&this.nearObj(['eyewash'])) return this.advance('Eyewash running. In a real splash, flush for 15 minutes and report it.');

@@ -54,7 +54,7 @@ Follow the task card on the right. There are 8 steps:
 2. Get acetone from the flammables cabinet.
 3. Dispense it in the fume hood.
 4. Return it to the cabinet.
-5. A spill appears: fetch the spill kit from the blue cabinet.
+5. A spill appears: fetch the spill kit near the centrifugal pump in the center of the room.
 6. Clean up the spill without walking through it.
 7. Eye splash: reach the eye wash and safety shower by the upper wall, just left of the door, within 10 seconds.
 8. Fire alarm: leave through the nearest exit within 25 seconds.

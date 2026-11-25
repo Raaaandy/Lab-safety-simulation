@@ -86,7 +86,7 @@ const DrillMethods = {
         if(!P.carry && at(['flam'])) return say(`${pname(3-pn)} has the acetone. They need to bring it back here.`, null, pn);
         break;
       case 'kit':
-        if(at(['blue'])){
+        if(at(['centri'])){
           P.kit = true;
           return this.advance(team ? `${pname(pn)} has the spill kit: absorbent pads, scoop, waste bag.`
                                    : 'Spill kit in hand: absorbent pads, scoop, waste bag.');
@@ -127,7 +127,7 @@ const DrillMethods = {
       case 'get':    return at(['flam']);
       case 'hood':   return P.carry ? at(['hood']) : null;
       case 'return': return P.carry ? at(['flam']) : null;
-      case 'kit':    return at(['blue']);
+      case 'kit':    return at(['centri']);
       case 'clean':  return this.nearSpill(pos, 34) ? {label:'Spill'} : null;
       case 'eyewash':return pn === this.s.splashed ? at(['eyewash']) : null;
     }
