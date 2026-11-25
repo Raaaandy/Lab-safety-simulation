@@ -46,7 +46,6 @@ const AwarenessMethods = {
     if(!this.picObj) return;
     $('objPic').src = o.pic;
     $('objPic').alt = o.alt || (o.label + '. ' + (o.note || ''));
-    // $('objPicCap').textContent = o.label;
   },
 
   // Show the picture for whatever the player is standing next to (called when E is pressed)

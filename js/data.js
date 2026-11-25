@@ -17,6 +17,8 @@ const EXITS = [
   {x:122,y:14},{x:622,y:14},{x:754,y:165},{x:754,y:1010},{x:645,y:1110}
 ];
 // kind controls colour + whether it is solid
+// alt: alt text
+// note: what is shown on the screen
 const OBJ = [
   {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood', alt:'Empty white fume hood with the window partly open.', pic:'assets/fume_hood.jpeg',note:'Work with volatile or toxic chemicals here, sash lowered to the marked height.'},
   {id:'pdpump',label:'PD Pump',x:416,y:26,w:90,h:46,kind:'equip',note:'Positive displacement pump. Never run against a closed outlet valve.'},
