@@ -45,6 +45,7 @@ const AwarenessMethods = {
     if(!box) return;
     this.picObj = o && o.pic ? o : null;
     box.hidden = !this.picObj;
+    placeObjectPhoto();
     if(!this.picObj) return;
     $('objPic').src = o.pic;
     $('objPic').alt = o.label + '. ' + (o.note || '');

@@ -50,6 +50,7 @@ const DrillMethods = {
   // Completes the current step if that player is in the right place, otherwise reads the nearest safety note.
   act(pn=this.me, pos=null){
     pos = pos || {x:this.player.x, y:this.player.y};
+    if(pn === this.me) this.showPic(this.nearest(38, pos));
     if(this.guest && pn === this.me){ if(!this.s.done) send({t:'act', x:pos.x, y:pos.y}); return; }
     if(this.s.done) return;
     const st = this.step, P = this.ps[pn], team = this.team(), at = ids => this.nearObj(ids, 38, pos);
@@ -86,7 +87,7 @@ const DrillMethods = {
         if(!P.carry && at(['flam'])) return say(`${pname(3-pn)} has the acetone. They need to bring it back here.`, null, pn);
         break;
       case 'kit':
-        if(at(['blue'])){
+        if(at(['spillkit'])){
           P.kit = true;
           return this.advance(team ? `${pname(pn)} has the spill kit: absorbent pads, scoop, waste bag.`
                                    : 'Spill kit in hand: absorbent pads, scoop, waste bag.');
@@ -127,7 +128,7 @@ const DrillMethods = {
       case 'get':    return at(['flam']);
       case 'hood':   return P.carry ? at(['hood']) : null;
       case 'return': return P.carry ? at(['flam']) : null;
-      case 'kit':    return at(['blue']);
+      case 'kit':    return at(['spillkit']);
       case 'clean':  return this.nearSpill(pos, 34) ? {label:'Spill'} : null;
       case 'eyewash':return pn === this.s.splashed ? at(['eyewash']) : null;
     }

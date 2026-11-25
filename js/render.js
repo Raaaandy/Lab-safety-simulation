@@ -23,6 +23,7 @@ const RenderMethods = {
 
     // equipment
     OBJ.forEach(o => {
+      if(o.mapVisible === false) return;
       g.fillStyle(hex(fill[o.kind] || '--obj'), 1).fillRect(o.x, o.y, o.w, o.h);
       g.lineStyle(stroke[o.kind] ? 3 : 1.5, hex(stroke[o.kind] || '--line'), 1).strokeRect(o.x, o.y, o.w, o.h);
     });
@@ -43,7 +44,7 @@ const RenderMethods = {
     // labels (tall objects get vertical labels)
     this.labels.forEach(t => t.destroy()); this.labels = [];
     const ink = css('--ink');
-    OBJ.filter(o => o.label).forEach(o => {
+    OBJ.filter(o => o.label && o.mapVisible !== false).forEach(o => {
       const vertical = o.h > o.w*1.5;
       const t = this.add.text(o.x+o.w/2, o.y+o.h/2, o.label, {fontFamily:'Atkinson Hyperlegible, sans-serif',
         fontSize: (o.w<30 || o.h<20) && !vertical ? '11px' : '14px', fontStyle:'bold', color:ink, align:'center'}).setOrigin(.5);
