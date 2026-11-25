@@ -41,7 +41,7 @@ The steps are the same as single-player, but some need both of you:
 |---|---|
 | 1. PPE | **Both** players must gear up at the cubbies before the drill continues. |
 | 2–4. Acetone | Either player can fetch it. Only the player carrying it can dispense it in the fume hood and return it. |
-| 5. Spill kit | One player guards the spill to keep others away while the other fetches the spill kit from the blue cabinet. |
+| 5. Spill kit | One player guards the spill to keep others away while the other fetches the spill kit near the centrifugal pump. |
 | 6. Clean up | **Both** players must stand at the edge of the spill; then either presses E. Alone, you hear "You need your partner at the spill to contain it from both sides." |
 | 7. Eyewash | The player who carried the spill kit gets the splash and must reach the eyewash within 10 seconds. The partner guides them. |
 | 8. Evacuation | **Both** players must leave through an exit within 25 seconds. |
