@@ -64,6 +64,16 @@ const AwarenessMethods = {
     $('near').textContent = target ? `${target.label} (press E)` : (o ? o.label : 'Nothing within reach.');
     const msg = target ? target.label + '. Press E.' : (o ? o.label : '');
     if(msg !== this.s.nearMsg){ this.s.nearMsg = msg; if(msg){ announce(msg); speakText(msg); } }
-    this.prompt.setVisible(!!target).setPosition(p.x, p.y - DOT_R - (NET.on ? 36 : 10)).setText('E');   // above the name tag in two-player mode
+    const promptY = p.y - DOT_R - (NET.on ? 36 : 10);
+    this.prompt.setVisible(!!target).setPosition(p.x, promptY).setText('Press E');   // above the name tag in two-player mode
+    this.promptBubble.setVisible(!!target).clear();
+    if(target){
+      const left = p.x - this.prompt.width / 2, top = promptY - this.prompt.height;
+      const tailY = promptY + 7;
+      this.promptBubble.fillStyle(0xFFFFFF, 1).fillRoundedRect(left, top, this.prompt.width, this.prompt.height, 7);
+      this.promptBubble.fillTriangle(p.x - 8, promptY - 1, p.x + 8, promptY - 1, p.x, tailY);
+      this.promptBubble.lineStyle(2, 0x1C2630, 1).strokeRoundedRect(left, top, this.prompt.width, this.prompt.height, 7);
+      this.promptBubble.beginPath().moveTo(p.x - 8, promptY - 1).lineTo(p.x, tailY).lineTo(p.x + 8, promptY - 1).strokePath();
+    }
   },
 };

@@ -71,8 +71,9 @@ class Lab extends Phaser.Scene{
     this.physics.add.collider(this.player, this.solids);
 
     // "E" bubble and the red fire-alarm flash
-    this.prompt = this.add.text(0, 0, '', {fontFamily:font, fontSize:'16px', fontStyle:'bold',
-      color:'#fff', backgroundColor:'#1C2630', padding:{x:6,y:3}}).setOrigin(.5,1).setDepth(10).setVisible(false);
+    this.promptBubble = this.add.graphics().setDepth(9).setVisible(false);
+    this.prompt = this.add.text(0, 0, '', {fontFamily:font, fontSize:'20px', fontStyle:'bold',
+      color:'#1C2630', padding:{x:10,y:7}}).setOrigin(.5,1).setDepth(10).setVisible(false);
     this.flash = this.add.rectangle(W/2, H/2, W, H, hex('--red'), 0).setDepth(9);
 
     // Keyboard

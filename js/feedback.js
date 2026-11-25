@@ -20,6 +20,7 @@ function log(msg, cls){
   li.textContent = msg;
   if(cls) li.className = cls;
   $('log').prepend(li);
+  if(cls === 'bad') alertBeep();
   showLatest(msg, cls);
   announce(msg);
   speakText(msg);
@@ -62,6 +63,23 @@ window.addEventListener('pointerdown', firstGesture);
 
 // Sound effects and the fire alarm (generated, no audio files)
 let audioCtx;
+function alertBeep(){
+  if(!sound) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = audioCtx.currentTime;
+    // A low, descending pair gives alerts a more ominous feel.
+    [[520, 0], [370, .24]].forEach(([freq, offset]) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sawtooth'; o.frequency.value = freq;
+      g.gain.setValueAtTime(.045, t + offset);
+      g.gain.exponentialRampToValueAtTime(.0001, t + offset + .2);
+      o.connect(g).connect(audioCtx.destination);
+      o.start(t + offset); o.stop(t + offset + .2);
+    });
+  }catch(e){}
+}
+
 function beep(freq=880, dur=.15, times=1){
   if(!sound) return;
   try{
