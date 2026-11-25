@@ -30,6 +30,7 @@ const OBJ = [
   {id:'fluid',label:'Fluid Friction',x:402,y:232,w:25,h:124,kind:'equip',note:'Fluid friction rig. Check fittings for leaks before running.'},
   {id:'tote',label:'Pump Tote',x:364,y:356,w:62,h:40,kind:'equip',note:'Water tote. Wipe up drips; wet floors are a slip hazard.'},
   {id:'centri',label:'Centrifugal Pump',x:343,y:405,w:64,h:135,kind:'equip',note:'Centrifugal pump. Keep guards on and loose clothing away from the shaft.'},
+  {id:'spillkit',label:'Spill Kit',x:407,y:405,w:36,h:135,kind:'cab',mapVisible:false,solid:false,pic:'assets/spill_kit.jpeg',note:'Spill kit near the centrifugal pump in the center of the room.'},
   {id:'benchL1',label:'Bench',x:204,y:357,w:54,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'benchL2',label:'Bench',x:207,y:510,w:48,h:98,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'osm',label:'OSM/4000',x:88,y:385,w:37,h:112,kind:'equip',note:'OSM/4000 unit.'},
@@ -57,6 +58,7 @@ const OBJ = [
   {id:'colE2',label:'',x:715,y:688,w:25,h:35,kind:'equip',note:'Structural column.'},
   {id:'tableE',label:'Table',x:585,y:846,w:40,h:98,kind:'table', alt:'Black lab table with lab equipment on top of the table. Two barstools by table.', pic:'assets/lab_table.jpeg', note:'Work table. Height is not adjustable.'},
 ];
+
 const UTILS = [[502,266],[686,268],[313,512],[526,512],[680,510],[83,510],[89,822],[515,818],[309,1059]];
 const FIRST_AID = {x:940,y:40,size:32,box:44};
 const TROUGH = {x:428,y:46,w:20,h:1052};
@@ -81,8 +83,8 @@ const STEPS = [
                teamText:'The player carrying the acetone: dispense it inside the fume hood.', target:['hood']},
   {id:'return',text:'Return the bottle to the flammables cabinet.',
                teamText:'The player carrying the acetone: return the bottle to the flammables cabinet.', target:['flam']},
-  {id:'kit',   text:'Spill by the benches! Fetch the spill kit from the blue cabinet.',
-               teamText:'Spill by the benches! One of you guards the spill to keep others away while the other fetches the spill kit from the blue cabinet.', target:['blue'], urgent:true},
+  {id:'kit',   text:'Spill by the benches! Fetch the spill kit near the centrifugal pump.',
+               teamText:'Spill by the benches! One of you guards the spill to keep others away while the other fetches the spill kit near the centrifugal pump.', target:['spillkit'], urgent:true},
   {id:'clean', text:'Clean up the spill. Don’t walk through it.',
                teamText:'Contain the spill together: both of you stand at the edge of the spill, then press E. Don’t walk through it.', target:['spill'], urgent:true},
   {id:'eyewash',text:'A drop splashed into your eye. Reach the eye wash and safety shower by the upper wall, just left of the door.', target:['eyewash'], urgent:true, timer:10},

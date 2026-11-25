@@ -90,6 +90,7 @@ const OBJ = [
   {id:'fluid',label:'Fluid Friction',x:402,y:232,w:25,h:124,kind:'equip',note:'Fluid friction rig. Check fittings for leaks before running.'},
   {id:'tote',label:'Pump Tote',x:364,y:356,w:62,h:40,kind:'equip',note:'Water tote. Wipe up drips; wet floors are a slip hazard.'},
   {id:'centri',label:'Centrifugal Pump',x:343,y:405,w:64,h:135,kind:'equip',note:'Centrifugal pump. Keep guards on and loose clothing away from the shaft.'},
+  {id:'spillkit',label:'Spill Kit',x:407,y:405,w:36,h:135,kind:'cab',mapVisible:false,solid:false,pic:'assets/spill_kit.jpeg',note:'Spill kit near the centrifugal pump in the center of the room.'},
   {id:'benchL1',label:'Bench',x:204,y:357,w:54,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'benchL2',label:'Bench',x:207,y:510,w:48,h:98,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'osm',label:'OSM/4000',x:88,y:385,w:37,h:112,kind:'equip',note:'OSM/4000 unit.'},
@@ -107,7 +108,7 @@ const OBJ = [
   {id:'steam',label:'Steam Bench',x:109,y:1052,w:182,h:47,kind:'hot',note:'Steam bench. Hot surfaces and an ignition source; keep solvents away.'},
   {id:'column',label:'Column',x:291,y:1057,w:43,h:42,kind:'equip',note:'Column base.'},
   {id:'hx',label:'Heat Exchanger',x:334,y:1047,w:100,h:52,kind:'hot',note:'Heat exchanger. Hot lines; do not touch without heat-resistant gloves.'},
-  {id:'blue',label:'Blue Cabinet',x:514,y:1064,w:94,h:35,kind:'cab',note:'Blue cabinet. In this demo it holds the spill kit.'},
+  {id:'blue',label:'Blue Cabinet',x:514,y:1064,w:94,h:35,kind:'cab',note:'Blue cabinet.'},
   {id:'benchR1',label:'Bench',x:508,y:247,w:55,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'benchR2',label:'Bench',x:508,y:392,w:55,h:100,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'rap',label:'RAP/4000',x:704,y:292,w:36,h:94,kind:'equip',note:'RAP/4000 unit.'},
@@ -129,7 +130,7 @@ const STEPS = [
   {id:'get',   text:'Collect the acetone bottle from the flammables cabinet.', target:['flam']},
   {id:'hood',  text:'Dispense the acetone inside the fume hood.', target:['hood']},
   {id:'return',text:'Return the bottle to the flammables cabinet.', target:['flam']},
-  {id:'kit',   text:'Spill by the benches! Fetch the spill kit from the blue cabinet.', target:['blue'], urgent:true},
+  {id:'kit',   text:'Spill by the benches! Fetch the spill kit near the centrifugal pump.', target:['spillkit'], urgent:true},
   {id:'clean', text:'Clean up the spill. Don’t walk through it.', target:['spill'], urgent:true},
   {id:'eyewash',text:'A drop splashed into your eye. Get to the eye wash and safety shower by the upper wall, just left of the door!', target:['eyewash'], urgent:true, timer:10},
   {id:'evac',  text:'Fire alarm! Leave the building and walk to the assembly point outside.', target:['assembly'], urgent:true, timer:35},
@@ -328,8 +329,12 @@ class Lab extends Phaser.Scene{
     const solid=(x,y,w,h)=>{ const r=this.add.rectangle(x+w/2,y+h/2,w,h).setVisible(false); this.solids.add(r); };
     WALLS.forEach(w=>solid(...w));
     const sh=this.add.graphics().setDepth(4); sh.fillStyle(0x000000,.18);
-    OBJ.forEach(o=>{ solid(o.x,o.y,o.w,o.h); sh.fillRect(o.x+3,o.y+o.h-2,o.w,5);
-      this.add.image(o.x,o.y,'o_'+o.id).setOrigin(0).setDepth(100+o.y+o.h); });
+    OBJ.forEach(o=>{
+      if(o.mapVisible===false) return;
+      if(o.solid!==false) solid(o.x,o.y,o.w,o.h);
+      sh.fillRect(o.x+3,o.y+o.h-2,o.w,5);
+      this.add.image(o.x,o.y,'o_'+o.id).setOrigin(0).setDepth(100+o.y+o.h);
+    });
     TREES.forEach(([x,y])=>{ this.add.image(x,y,'tree').setOrigin(.5,1).setDepth(100+y); solid(x-5,y-8,10,8);
       sh.fillEllipse(x,y-1,26,7); });
     this.add.image(ASSEMBLY.x,ASSEMBLY.y,'sign').setOrigin(.5,1).setDepth(100+ASSEMBLY.y); solid(ASSEMBLY.x-3,ASSEMBLY.y-5,6,5);
@@ -426,7 +431,7 @@ class Lab extends Phaser.Scene{
       if(this.nearObj(OBJ.filter(o=>o.kind==='bench').map(o=>o.id))) return this.violate('bench','Tried to dispense acetone on an open bench. Volatile solvents go in the fume hood.');
     }
     if(st.id==='return'&&this.nearObj(['flam'])){ this.s.carry=false; return this.advance('Bottle back in the cabinet, doors closed.'); }
-    if(st.id==='kit'&&this.nearObj(['blue'])){ this.s.kit=true; return this.advance('Spill kit in hand: absorbent pads, scoop and a waste bag.'); }
+    if(st.id==='kit'&&this.nearObj(['spillkit'])){ this.s.kit=true; return this.advance('Spill kit in hand: absorbent pads, scoop and a waste bag.'); }
     if(st.id==='clean'&&this.nearSpill()){ this.s.spill=false; this.s.kit=false; this.spill.setVisible(false);
       return this.advance('Absorbed from the edges inward and bagged as hazardous waste.'); }
     if(st.id==='eyewash'&&this.nearObj(['eyewash'])) return this.advance('Eyewash running. In a real splash, flush for 15 minutes and report it.');

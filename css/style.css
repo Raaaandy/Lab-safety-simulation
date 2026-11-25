@@ -41,6 +41,12 @@ header p{margin:0;color:var(--muted)}
 .lobby input{font:inherit;text-transform:uppercase;letter-spacing:.08em;width:9rem;min-height:44px;
   padding:.4rem .65rem;border:2px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
 #lobbyStatus{min-height:1.5em;margin:.8rem 0 0;font-weight:700}
+dialog#controlsTutorial{width:min(32rem,calc(100% - 2rem));padding:1.25rem 1.4rem;
+  border:3px solid var(--ink);border-radius:8px;background:var(--surface);color:var(--ink)}
+dialog#controlsTutorial::backdrop{background:rgb(0 0 0 / .55)}
+dialog#controlsTutorial h2{margin:0 0 .7rem}
+dialog#controlsTutorial p{line-height:1.5}
+dialog#controlsTutorial button{margin-top:.35rem}
 main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1rem;padding:.75rem 1rem;max-width:1600px;margin:0 auto;align-items:start}
 /* the map is landscape (1120 x 770): fill the width, keep the shape, and never taller than the screen */
 #game{width:100%;aspect-ratio:1120/770;max-height:calc(100vh - 11rem);outline:none;border-radius:4px}
@@ -89,6 +95,10 @@ kbd{font-family:inherit;border:1px solid var(--line);border-bottom-width:2px;bor
 main.panel-hidden{grid-template-columns:minmax(0,1fr)}
 main.panel-hidden aside{display:none}
 main.panel-hidden #game{max-height:calc(100vh - 14.5rem)}
+main.panel-hidden.panel-photo{grid-template-columns:minmax(0,1fr) minmax(220px,280px)}
+main.panel-hidden.panel-photo>.stage{grid-column:1;grid-row:1}
+main.panel-hidden.panel-photo>#objPicBox{grid-column:2;grid-row:1;position:sticky;top:.75rem}
+main.panel-hidden.panel-photo>#objPicBox #objPic{max-height:calc(100vh - 15rem)}
 .panel-toggle{margin-left:auto}
 .stage{display:flex;flex-direction:column;gap:.6rem;min-width:0}
 .map-zoom{display:flex;justify-content:flex-end;gap:.35rem}
@@ -99,6 +109,9 @@ main.panel-hidden #game{max-height:calc(100vh - 14.5rem)}
 .navigator-arrow{display:grid;place-items:center;flex:none;width:2rem;height:2rem;border:2px solid var(--red);
   border-radius:50%;color:var(--red);font-size:1.55rem;font-weight:900;line-height:1}
 #navigatorDestination{min-width:0;font-weight:700;overflow-wrap:anywhere}
+@media (hover:hover) and (pointer:fine){
+  .keyboard-action{display:none}
+}
 
 /* Latest event bar under the map */
 .latest{position:relative;background:var(--surface);border:2px solid color-mix(in srgb,var(--line) 25%,transparent);
@@ -134,6 +147,9 @@ main.panel-hidden #game{max-height:calc(100vh - 14.5rem)}
 @media (max-width:860px){
   main{grid-template-columns:1fr}
   #game{max-height:none}
+  main.panel-hidden.panel-photo{grid-template-columns:1fr}
+  main.panel-hidden.panel-photo>#objPicBox{grid-column:1;grid-row:2;position:static}
+  main.panel-hidden.panel-photo>#objPicBox #objPic{max-height:220px}
 }
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} .latest.flash{animation:none} }
 

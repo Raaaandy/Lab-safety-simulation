@@ -1,6 +1,6 @@
 # B035 Lab Safety Simulator
 
-A browser-based 2D lab safety drill set in room B035, the chemical engineering lab. Walk through the room, follow the safety steps, and respond to a spill, an eye splash and a fire alarm. It is designed to be playable with a keyboard, a screen reader, or read-aloud speech.
+A browser-based 2D lab safety drill set in room B035, the chemical engineering lab. Walk through the room, follow the safety steps, and respond to a spill, an eye splash and a fire alarm. It is designed to be playable with a keyboard, a screen reader, or read-aloud speech designed for laptop website game.
 
 **Play online:** [https://raaaandy.github.io/b035-lab-safety-sim/](https://raaaandy.github.io/Lab-safety-simulation/)
 
@@ -38,6 +38,7 @@ The online version and a double-clicked `index.html` are always single-player.
 | Start over | | **Restart** button |
 
 Holding Shift makes you run, but running in the lab costs points.
+At the start, a short tutorial introduces these controls. Object photos appear at the top of the right panel when you interact with a nearby photographed object. When the side panel is hidden, an open photo sits beside the map without covering it.
 
 ## The screen
 
@@ -54,7 +55,7 @@ Follow the task card on the right. There are 8 steps:
 2. Get acetone from the flammables cabinet.
 3. Dispense it in the fume hood.
 4. Return it to the cabinet.
-5. A spill appears: fetch the spill kit from the blue cabinet.
+5. A spill appears: fetch the spill kit beside the centrifugal pump in the center of the room.
 6. Clean up the spill without walking through it.
 7. Eye splash: reach the eye wash and safety shower by the upper wall, just left of the door, within 10 seconds.
 8. Fire alarm: leave through the nearest exit within 25 seconds.

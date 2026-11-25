@@ -41,7 +41,7 @@ class Lab extends Phaser.Scene{
     this.solids = this.physics.add.staticGroup();
     const addSolid = (x,y,w,h) => this.solids.add(this.add.rectangle(x+w/2, y+h/2, w, h).setVisible(false));
     WALLS.forEach(w => addSolid(...w));
-    OBJ.forEach(o => addSolid(o.x, o.y, o.w, o.h));
+    OBJ.filter(o => o.solid !== false).forEach(o => addSolid(o.x, o.y, o.w, o.h));
 
     const font = 'Atkinson Hyperlegible, sans-serif';
     const tag = (text, bg) => this.add.text(0, -28, text, {fontFamily:font, fontSize:'13px', fontStyle:'bold',

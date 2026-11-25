@@ -30,6 +30,12 @@
   </form>
   <p id="lobbyStatus" role="status" aria-live="polite"></p>
 </section>
+<dialog id="controlsTutorial" aria-labelledby="controlsTutorialTitle">
+  <h2 id="controlsTutorialTitle">Quick controls</h2>
+  <p><kbd>WASD</kbd> or <kbd>←↑→↓</kbd> to move. Press <kbd>E</kbd> to interact or read a safety note, and <kbd>Q</kbd> to hear about nearby objects.</p>
+  <p>On a touch screen, press and hold the map to walk. The Interact and Describe buttons are available in the Nearby panel.</p>
+  <button id="btnTutorialStart" type="button">Start walk-through</button>
+</dialog>
 <main id="main" hidden>
   <div class="stage">
     <div id="game" tabindex="0" aria-label="Lab floor plan. Use arrow keys or WASD to move, E to interact, Q to describe your surroundings."></div>
@@ -75,17 +81,12 @@
     <section class="box">
       <h2>Nearby</h2>
       <p id="near">Nothing within reach.</p>
-      <div class="btns" style="margin-top:.6rem">
-        <button id="btnAct" type="button">Interact (E)</button>
-        <button id="btnDesc" type="button">Describe (Q)</button>
+      <div class="btns nearby-actions" style="margin-top:.6rem">
+        <button id="btnAct" class="keyboard-action" type="button">Interact (E)</button>
+        <button id="btnDesc" class="keyboard-action" type="button">Describe (Q)</button>
         <button id="btnRestart" type="button">Restart</button>
       </div>
     </section>
-   <figure id="objPicBox" class="box" hidden>
-    <h2>Object Photo</h2>
-    <img id="objPic" alt="">
-    <figcaption id="objPicCap"></figcaption>
-  </figure>
     <section class="box">
       <h2>Event Log</h2>
       <ul id="log"></ul>
@@ -107,6 +108,11 @@
       </ul>
     </section>
   </aside>
+  <figure id="objPicBox" class="box" hidden>
+    <h2>Object photo</h2>
+    <img id="objPic" alt="">
+    <figcaption id="objPicCap"></figcaption>
+  </figure>
 </main>
 
 <!-- Game code, in load order. Plain scripts (not modules) so the game also works when index.html is double-clicked. -->

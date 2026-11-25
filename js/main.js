@@ -5,7 +5,19 @@ function setPanelHidden(hidden){
   $('btnPanel').setAttribute('aria-expanded', String(!hidden));
   $('btnPanel').textContent = hidden ? 'Show side panel' : 'Hide side panel';
   $('latestTask').hidden = !hidden;
+  placeObjectPhoto();
   requestAnimationFrame(() => NET.game.scale.refresh());
+}
+
+function placeObjectPhoto(){
+  const main = $('main'), panel = $('panel'), photo = $('objPicBox');
+  if(main.classList.contains('panel-hidden')){
+    if(photo.parentElement !== main) main.append(photo);
+    main.classList.toggle('panel-photo', !photo.hidden);
+  } else {
+    if(photo.parentElement !== panel) panel.insertBefore(photo, panel.firstElementChild);
+    main.classList.remove('panel-photo');
+  }
 }
 
 function startGame(){
@@ -24,6 +36,11 @@ function startGame(){
   window.addEventListener('resize', () => requestAnimationFrame(() => game.scale.refresh()));
   const scene = () => game.scene.getScene('lab');
 
+  $('btnTutorialStart').onclick = () => {
+    $('controlsTutorial').close();
+    $('game').focus();
+  };
+  $('controlsTutorial').showModal();
   $('btnAct').onclick  = () => scene().act();
   $('btnDesc').onclick = () => scene().describe();
   $('btnZoomIn').onclick = () => scene().setMapZoom(scene().cameras.main.zoom + .5);
