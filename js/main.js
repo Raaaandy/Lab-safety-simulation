@@ -31,6 +31,7 @@ function startGame(){
   $('btnZoomReset').onclick = () => scene().setMapZoom(1);
   $('btnRestart').onclick = () => {
     if('speechSynthesis' in window) speechSynthesis.cancel();
+    lastSpoken = '';
     send({t:'restart'});          // two-player: restart the partner's drill too
     setPanelHidden(false);
     scene().scene.restart();

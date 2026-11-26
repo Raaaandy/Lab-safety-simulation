@@ -48,22 +48,36 @@ const AwarenessMethods = {
     if(!this.picObj) return;
     $('objPic').src = o.pic;
     $('objPic').alt = o.label + '. ' + (o.note || '');
+    const overlay = $('objPicOverlay');
+    if(o.overlayPic){
+      overlay.hidden = false;
+      overlay.src = o.overlayPic;
+      overlay.alt = o.overlayAlt || 'NaOH';
+    }else{
+      overlay.hidden = true;
+      overlay.removeAttribute('src');
+      overlay.alt = '';
+    }
     $('objPicCap').textContent = o.label;
   },
 
   // Every frame: update the "Nearby" box and the E bubble, and announce changes once
   updateProximity(){
-    if(this.picObj){
-      const pl = this.player;
-      const away = this.picObj === SPILL
-        ? !(this.s.spill && this.nearSpill(pl, 30))
-        : distToRect(pl.x, pl.y, this.picObj) > 38;
-      if(away) this.showPic(null);
-    }
     const p = this.player, target = this.actionTarget(), o = this.nearest();
     $('near').textContent = target ? `${target.label} (press E)` : (o ? o.label : 'Nothing within reach.');
     const msg = target ? target.label + '. Press E.' : (o ? o.label : '');
     if(msg !== this.s.nearMsg){ this.s.nearMsg = msg; if(msg){ announce(msg); speakText(msg); } }
+    if(this.s.spill && this.nearSpill(p, 30)){
+      this.showPic(SPILL);
+    }else{
+      const nearby = this.nearest(38);
+      if(nearby && nearby.pic){
+        this.showPic(nearby);
+      }else{
+        const hood = OBJ.find(item => item.id === 'hood');
+        if(hood) this.showPic(hood);
+      }
+    }
     this.prompt.setVisible(!!target).setPosition(p.x, p.y - DOT_R - (NET.on ? 36 : 10)).setText('E');   // above the name tag in two-player mode
   },
 };

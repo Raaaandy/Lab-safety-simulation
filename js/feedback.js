@@ -3,7 +3,7 @@
 // screen readers) and reads it aloud. Never show information only on the canvas.
 
 // Settings (checkboxes in the side panel)
-let speak = true, guide = true, sound = true;
+let speak = false, guide = true, sound = true;
 let lastSpoken = '', heardGesture = false;
 
 function bindSettings(){
@@ -18,9 +18,18 @@ function bindSettings(){
       if(!e.repeat) input.click();
     });
   });
-  $('optSpeak').onchange = e => speak = e.target.checked;
+  $('optSpeak').onchange = e => {
+    speak = e.target.checked;
+    if(!speak){
+      lastSpoken = '';
+      if('speechSynthesis' in window) speechSynthesis.cancel();
+    }
+  };
   $('optGuide').onchange = e => guide = e.target.checked;
   $('optSound').onchange = e => sound = e.target.checked;
+  speak = $('optSpeak').checked;
+  guide = $('optGuide').checked;
+  sound = $('optSound').checked;
 }
 
 // Main message path. cls is 'good', 'bad', 'urgent' or null. Each message goes to:

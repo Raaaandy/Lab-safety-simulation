@@ -18,7 +18,7 @@ const EXITS = [
 ];
 // kind controls colour + whether it is solid
 const OBJ = [
-  {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood', pic: 'assets/fume_hood.jpeg',note:'Work with volatile or toxic chemicals here, sash lowered to the marked height. The base cabinet under the fume hood stores NaOH.'},
+  {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood', pic:'assets/fume_hood.jpeg', overlayPic:'assets/naoh.jpeg', overlayAlt:'NaOH bottle stored in the base cabinet under the fume hood', note:'Work with volatile or toxic chemicals here, sash lowered to the marked height. The base cabinet under the fume hood stores NaOH.'},
   {id:'pdpump',label:'PD Pump',x:416,y:26,w:90,h:46,kind:'equip',note:'Positive displacement pump. Never run against a closed outlet valve.'},
   {id:'benchT',label:'Bench',x:520,y:26,w:75,h:52,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'pigmats',label:'Pig Mats',x:595,y:26,w:55,h:52,kind:'equip',note:'Absorbent pig mats. Stored near the cubbies and positive displacement pump.'},

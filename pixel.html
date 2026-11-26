@@ -55,7 +55,7 @@ summary{cursor:pointer;font-weight:600}
   <button id="btnDesc" type="button">Describe (Q)</button>
   <button id="btnMap" type="button">Map (M)</button>
   <button id="btnRestart" type="button">Restart</button>
-  <label><input type="checkbox" id="optSpeak" checked> Read aloud (turn off if you use a screen reader)</label>
+  <label><input type="checkbox" id="optSpeak"> Read aloud</label>
   <label><input type="checkbox" id="optSound" checked> Sounds</label>
   <span class="keys"><kbd>WASD</kbd> walk, <kbd>Shift</kbd> run (please don’t), <kbd>−</kbd>/<kbd>=</kbd> zoom</span>
 </div>
@@ -138,8 +138,14 @@ const FONT = '"Pixelify Sans", ui-rounded, sans-serif';
 
 // ================= Page helpers =================
 const $ = id => document.getElementById(id);
-let speak=true, sound=true, lastSpoken='', heardGesture=false;
-$('optSpeak').onchange=e=>speak=e.target.checked;
+let speak=false, sound=true, lastSpoken='', heardGesture=false;
+$('optSpeak').onchange=e=>{
+  speak=e.target.checked;
+  if(!speak){
+    lastSpoken='';
+    if('speechSynthesis' in window) speechSynthesis.cancel();
+  }
+};
 $('optSound').onchange=e=>sound=e.target.checked;
 // Screen-reader channel: a hidden live region outside the collapsible log, so it is announced even when the log is closed.
 function announce(msg){
@@ -606,7 +612,7 @@ function boot(){
     physics:{default:'arcade',arcade:{debug:false}}, scale:{mode:Phaser.Scale.RESIZE,width:'100%',height:'100%'}, scene:[Lab,Hud] });
   const L=()=>game.scene.getScene('lab');
   $('btnAct').onclick=()=>L().act(); $('btnDesc').onclick=()=>L().describe(); $('btnMap').onclick=()=>L().toggleMap();
-  $('btnRestart').onclick=()=>{ if('speechSynthesis' in window) speechSynthesis.cancel(); L().scene.restart(); $('game').focus(); };
+  $('btnRestart').onclick=()=>{ if('speechSynthesis' in window) speechSynthesis.cancel(); lastSpoken=''; L().scene.restart(); $('game').focus(); };
   $('game').focus();
 }
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(boot);

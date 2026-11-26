@@ -130,6 +130,7 @@ const NetMethods = {
     else if(m.t === 'run' && !this.guest) this.violate(m.key, m.msg, this.other);
     else if(m.t === 'restart'){
       if('speechSynthesis' in window) speechSynthesis.cancel();
+      lastSpoken = '';
       this.scene.restart();
       return true;
     }
