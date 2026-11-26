@@ -20,7 +20,7 @@ const EXITS = [
 // alt: alt text
 // note: what is shown on the screen
 const OBJ = [
-  {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood', alt:'Empty white fume hood with the window partly open.', pic:'assets/fume_hood.jpeg',note:'Work with volatile or toxic chemicals here, sash lowered to the marked height.'},
+  {id:'hood',label:'Fume Hoods',x:155,y:26,w:198,h:52,kind:'hood', alt:'Empty white fume hood with the window partly open.', pic:'assets/fume_hood.jpeg', overlayPic:'assets/naoh.jpeg', overlayAlt:'NaOH bottle stored in the base cabinet under the fume hood', note:'Work with volatile or toxic chemicals here, sash lowered to the marked height. The base cabinet under the fume hood stores NaOH.'},
   {id:'pdpump',label:'PD Pump',x:416,y:26,w:90,h:46,kind:'equip',note:'Positive displacement pump. Never run against a closed outlet valve.'},
   {id:'benchT',label:'Bench',x:520,y:26,w:75,h:52,kind:'bench',note:'Open bench. No volatile solvent dispensing here.'},
   {id:'cubbyA',label:'Cubbies',x:650,y:26,w:60,h:18,kind:'cubby', alt:'Diagram of common lab PPE: goggles, face shield, medical cap, surgical and N95 masks, shoes and leg cover, alcohol gel and spray, disposable gloves.', pic:'assets/ppe.jpeg', note:'Store bags here and put on goggles, lab coat and gloves.'},

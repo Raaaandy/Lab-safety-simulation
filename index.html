@@ -93,7 +93,7 @@
     </section>
     <section class="box">
       <h2>Settings</h2>
-      <label><input type="checkbox" id="optSpeak" checked> Read events aloud (turn off if you use a screen reader)</label>
+      <label><input type="checkbox" id="optSpeak"> Read events aloud</label>
       <label><input type="checkbox" id="optGuide" checked> Highlight the current target</label>
       <label><input type="checkbox" id="optSound" checked> Alarm and alert sounds</label>
     </section>
@@ -110,7 +110,10 @@
   </aside>
   <figure id="objPicBox" class="box" hidden>
     <h2>Object photo</h2>
-    <img id="objPic" alt="">
+    <div class="obj-pic-frame">
+      <img id="objPic" alt="">
+      <img id="objPicOverlay" class="obj-pic-overlay" alt="" hidden>
+    </div>
     <figcaption id="objPicCap"></figcaption>
   </figure>
 </main>
